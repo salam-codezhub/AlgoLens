@@ -1,0 +1,6 @@
+{
+  "name": "@algolens/security",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Security scanning: threat, secret, and injection detection."
+}
