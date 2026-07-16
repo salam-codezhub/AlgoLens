@@ -1,0 +1,6 @@
+{
+  "name": "@algolens/parser",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AST parsing and language detection."
+}
