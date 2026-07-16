@@ -1,0 +1,6 @@
+{
+  "name": "@algolens/webview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React webview UI rendered inside the VS Code extension panel."
+}
