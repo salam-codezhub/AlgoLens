@@ -1,0 +1,6 @@
+{
+  "name": "@algolens/optimizer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Optimization suggestions and patch/diff generation."
+}
