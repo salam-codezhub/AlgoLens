@@ -1,0 +1,6 @@
+{
+  "name": "@algolens/extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "VS Code extension host: activation, commands, and orchestration glue between the editor and packages/*."
+}
