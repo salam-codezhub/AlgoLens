@@ -1,0 +1,6 @@
+{
+  "name": "@algolens/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared React component library for the webview app."
+}
