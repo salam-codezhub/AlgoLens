@@ -1,0 +1,6 @@
+{
+  "name": "@algolens/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cross-cutting utilities, constants, types, and error classes."
+}
