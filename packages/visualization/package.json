@@ -1,0 +1,6 @@
+{
+  "name": "@algolens/visualization",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Diagrams, graphs, and charts (Mermaid, React Flow)."
+}
