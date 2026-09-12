@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    /* Language & Environment */
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+
+    /* Strictness (mandatory per project rules — no relaxing without justification) */
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Interop & Module Resolution */
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+
+    /* Project References / Incremental Builds */
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmitOnError": true,
+
+    /* Path Aliases — cross-package imports resolve to source during development.
+       Paths are relative to this file's own directory (repo root); TypeScript 7
+       removed `baseUrl`, so every entry must be an explicit relative path. */
+    "paths": {
+      "@algolens/ai": ["./packages/ai/src/index.ts"],
+      "@algolens/ai/*": ["./packages/ai/src/*"],
+      "@algolens/analyzer": ["./packages/analyzer/src/index.ts"],
+      "@algolens/analyzer/*": ["./packages/analyzer/src/*"],
+      "@algolens/benchmark": ["./packages/benchmark/src/index.ts"],
+      "@algolens/benchmark/*": ["./packages/benchmark/src/*"],
+      "@algolens/core": ["./packages/core/src/index.ts"],
+      "@algolens/core/*": ["./packages/core/src/*"],
+      "@algolens/documentation": ["./packages/documentation/src/index.ts"],
+      "@algolens/documentation/*": ["./packages/documentation/src/*"],
+      "@algolens/optimizer": ["./packages/optimizer/src/index.ts"],
+      "@algolens/optimizer/*": ["./packages/optimizer/src/*"],
+      "@algolens/parser": ["./packages/parser/src/index.ts"],
+      "@algolens/parser/*": ["./packages/parser/src/*"],
+      "@algolens/runtime": ["./packages/runtime/src/index.ts"],
+      "@algolens/runtime/*": ["./packages/runtime/src/*"],
+      "@algolens/security": ["./packages/security/src/index.ts"],
+      "@algolens/security/*": ["./packages/security/src/*"],
+      "@algolens/shared": ["./packages/shared/src/index.ts"],
+      "@algolens/shared/*": ["./packages/shared/src/*"],
+      "@algolens/storage": ["./packages/storage/src/index.ts"],
+      "@algolens/storage/*": ["./packages/storage/src/*"],
+      "@algolens/ui": ["./packages/ui/src/index.ts"],
+      "@algolens/ui/*": ["./packages/ui/src/*"],
+      "@algolens/visualization": ["./packages/visualization/src/index.ts"],
+      "@algolens/visualization/*": ["./packages/visualization/src/*"]
+    }
+  }
+}

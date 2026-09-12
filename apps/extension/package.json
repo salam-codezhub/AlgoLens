@@ -1,0 +1,41 @@
+{
+  "name": "algolens",
+  "displayName": "AlgoLens",
+  "description": "Analyze. Optimize. Accelerate. AI-powered code analysis, optimization, benchmarking and documentation, right inside VS Code.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "algolens",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Machine Learning",
+    "Visualization"
+  ],
+  "main": "dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "algolens.showInfo",
+        "title": "AlgoLens: Show Extension Info"
+      },
+      {
+        "command": "algolens.showWorkspaceContext",
+        "title": "AlgoLens: Show Workspace Context"
+      }
+    ]
+  },
+  "dependencies": {
+    "@algolens/core": "^0.1.0",
+    "@algolens/parser": "^0.1.0",
+    "@algolens/shared": "^0.1.0"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.cjs --mode production",
+    "dev": "webpack --config webpack.config.cjs --mode development --watch",
+    "clean": "rimraf dist"
+  }
+}

@@ -1,0 +1,11 @@
+# Build output
+dist/
+dist-tsc/
+coverage/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Generated / lock files
+package-lock.json

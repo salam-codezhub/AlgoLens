@@ -1,0 +1,13 @@
+{
+  "name": "@algolens/documentation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Documentation and report generation (Markdown, HTML, PDF).",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  }
+}

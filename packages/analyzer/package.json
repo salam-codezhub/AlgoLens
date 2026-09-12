@@ -1,0 +1,24 @@
+{
+  "name": "@algolens/analyzer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static analysis engine: complexity, algorithm detection, metrics.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@algolens/core": "^0.1.0",
+    "@algolens/parser": "^0.1.0",
+    "@algolens/shared": "^0.1.0",
+    "@babel/parser": "8.0.4",
+    "@babel/traverse": "8.0.4",
+    "@babel/types": "8.0.4"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "7.28.0"
+  }
+}

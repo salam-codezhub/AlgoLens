@@ -1,0 +1,13 @@
+{
+  "name": "@algolens/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Core business logic, interfaces, Event Bus, and dependency injection.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  }
+}

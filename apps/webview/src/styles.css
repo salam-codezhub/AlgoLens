@@ -1,0 +1,198 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Tailwind v4's automatic source detection excludes node_modules, but
+   @algolens/ui (Phase 10's shadcn-pattern component library) is only
+   reachable from here through a workspace symlink in node_modules. Without
+   this, utility classes used inside packages/ui/src would silently never
+   be generated. */
+@source "../../../packages/ui/src";
+
+/* Self-hosted fonts (no external network dependency — important for a VS
+   Code webview, which may run under a restrictive Content-Security-Policy
+   with no access to remote font CDNs). */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+
+/**
+ * AlgoLens Theme Engine (Phase 11), per MASTER_04_UI_GUIDE.md.
+ *
+ * Two-layer indirection, the standard pattern for runtime-switchable
+ * Tailwind v4 themes: `@theme inline` declares the utility-generating
+ * tokens once, pointing at plain CSS custom properties; `:root`/`.dark`
+ * redefine those properties for light/dark mode, and `[data-accent]`
+ * overrides just the accent-related ones. `ThemeProvider`
+ * (src/providers/theme-provider.tsx) applies `.light`/`.dark` and
+ * `data-accent` to <html> at runtime — nothing here does the switching by
+ * itself, this file only defines what each state looks like.
+ *
+ * MASTER_04_UI_GUIDE.md names colors ("Electric Blue", "Purple", ...)
+ * without exact hex values; the values below are a deliberate, accessible
+ * interpretation, not arbitrary placeholders. Brand/accent hues
+ * (primary/accent/success/warning/danger) are intentionally the same
+ * across light and dark — only surface, background, text, and border
+ * tokens adapt per mode, which is standard practice (a button's brand
+ * color shouldn't change when the user switches themes).
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-card: var(--surface);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted: var(--secondary);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+
+  --color-glass: var(--glass-surface);
+  --color-glass-border: var(--glass-border);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Accordion open/close animation, driven by Radix's own content-height
+     custom property. Registered here (Tailwind v4 CSS-first animation
+     syntax) rather than in a tailwind.config.js, matching the rest of this
+     file's config approach. */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* ---- Dark theme (default) ---- */
+:root,
+.dark {
+  --background: #0b0f17;
+  --surface: #151b23;
+  --foreground: #e6edf3;
+  --muted-foreground: #8b98a5;
+  --secondary: #1c232d;
+  --border: #2a3441;
+  --destructive-foreground: #f8fafc;
+  --glass-surface: rgb(21 27 35 / 60%);
+  --glass-border: rgb(255 255 255 / 8%);
+}
+
+/* ---- Light theme ---- */
+.light {
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --foreground: #0f172a;
+  --muted-foreground: #64748b;
+  --secondary: #f1f5f9;
+  --border: #e2e8f0;
+  --destructive-foreground: #f8fafc;
+  --glass-surface: rgb(255 255 255 / 60%);
+  --glass-border: rgb(15 23 42 / 8%);
+}
+
+/* ---- Accent color presets ----
+   Each reuses one of the existing semantic hues rather than introducing
+   new arbitrary colors, so "accent color" just picks which already-defined
+   hue drives the primary interactive color. Blue is the default and needs
+   no override block. */
+:root,
+[data-accent="blue"] {
+  --primary: #3e8eff; /* Electric Blue */
+  --primary-foreground: #f8fafc;
+  --accent: #a855f7; /* Purple */
+  --accent-foreground: #f8fafc;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+[data-accent="purple"] {
+  --primary: #a855f7;
+  --primary-foreground: #f8fafc;
+}
+
+[data-accent="green"] {
+  --primary: #22c55e;
+  --primary-foreground: #052e16;
+}
+
+[data-accent="amber"] {
+  --primary: #f59e0b;
+  --primary-foreground: #451a03;
+}
+
+[data-accent="rose"] {
+  --primary: #ef4444;
+  --primary-foreground: #f8fafc;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 700;
+  }
+
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+  }
+}
+
+@utility glass {
+  background-color: var(--color-glass);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}

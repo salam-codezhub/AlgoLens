@@ -1,0 +1,20 @@
+{
+  "files": [],
+  "references": [
+    { "path": "apps/extension" },
+    { "path": "apps/webview" },
+    { "path": "packages/ai" },
+    { "path": "packages/analyzer" },
+    { "path": "packages/benchmark" },
+    { "path": "packages/core" },
+    { "path": "packages/documentation" },
+    { "path": "packages/optimizer" },
+    { "path": "packages/parser" },
+    { "path": "packages/runtime" },
+    { "path": "packages/security" },
+    { "path": "packages/shared" },
+    { "path": "packages/storage" },
+    { "path": "packages/ui" },
+    { "path": "packages/visualization" }
+  ]
+}

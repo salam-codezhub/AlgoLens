@@ -1,0 +1,23 @@
+{
+  "name": "@algolens/parser",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AST parsing and language detection.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@babel/parser": "8.0.4",
+    "@babel/traverse": "8.0.4",
+    "@babel/types": "8.0.4",
+    "tree-sitter-wasms": "0.1.13",
+    "web-tree-sitter": "0.20.8"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "7.28.0"
+  }
+}
