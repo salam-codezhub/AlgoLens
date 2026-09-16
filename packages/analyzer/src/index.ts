@@ -19,6 +19,8 @@ export * from "./runtime-estimation/types.js";
 export * from "./runtime-estimation/algorithm-runtime-table.js";
 export * from "./runtime-estimation/structural-estimator.js";
 export * from "./runtime-estimation/runtime-estimation-engine.js";
-
+export * from "./memory-analysis/types.js";
+export * from "./memory-analysis/structural-estimator.js";
+export * from "./memory-analysis/memory-analysis-engine.js";
 /** Canonical package name, useful for logging and diagnostics. */
 export const PACKAGE_NAME = "@algolens/analyzer" as const;
