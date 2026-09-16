@@ -26,3 +26,4 @@ export * from "./memory-analysis/memory-analysis-engine.js";
 export const PACKAGE_NAME = "@algolens/analyzer" as const;
 
 export * from "./bug-detection/index.js";
+export * from "./code-smells/index.js";
