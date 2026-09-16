@@ -5,3 +5,4 @@ export * from "./types.js";
 export * from "./optimization-service.js";
 export * from "./diff-generator.js";
 export * from "./optimization-engine.js";
+export * from "./modification/index.js";
