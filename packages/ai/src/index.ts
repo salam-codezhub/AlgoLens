@@ -25,3 +25,5 @@ export * from "./prompts/prompt-manager.js";
 
 /** Canonical package name, useful for logging and diagnostics. */
 export const PACKAGE_NAME = "@algolens/ai" as const;
+
+export * from "./chat-assistant/index.js";
