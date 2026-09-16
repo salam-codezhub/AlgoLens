@@ -15,6 +15,10 @@ export * from "./space-complexity/types.js";
 export * from "./space-complexity/algorithm-space-table.js";
 export * from "./space-complexity/structural-estimator.js";
 export * from "./space-complexity/space-complexity-engine.js";
+export * from "./runtime-estimation/types.js";
+export * from "./runtime-estimation/algorithm-runtime-table.js";
+export * from "./runtime-estimation/structural-estimator.js";
+export * from "./runtime-estimation/runtime-estimation-engine.js";
 
 /** Canonical package name, useful for logging and diagnostics. */
 export const PACKAGE_NAME = "@algolens/analyzer" as const;
