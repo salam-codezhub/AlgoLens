@@ -10,6 +10,11 @@ export * from "./time-complexity/types.js";
 export * from "./time-complexity/algorithm-complexity-table.js";
 export * from "./time-complexity/structural-estimator.js";
 export * from "./time-complexity/time-complexity-engine.js";
+export * from "./time-complexity/time-complexity-engine.js";
+export * from "./space-complexity/types.js";
+export * from "./space-complexity/algorithm-space-table.js";
+export * from "./space-complexity/structural-estimator.js";
+export * from "./space-complexity/space-complexity-engine.js";
 
 /** Canonical package name, useful for logging and diagnostics. */
 export const PACKAGE_NAME = "@algolens/analyzer" as const;
