@@ -27,9 +27,9 @@ Canonical, single-source-of-truth tracker for the 40-phase build roadmap defined
 | 21    | Static Analysis Engine              | ✅ Done        |
 | 22    | Algorithm Detection                 | ✅ Done        |
 | 23    | Time Complexity Engine              | ✅ Done        |
-| 24    | Space Complexity Engine             | ⬜ Not started |
-| 25    | Runtime Estimation Engine           | ⬜ Not started |
-| 26    | Benchmark Engine                    | ⬜ Not started |
+| 24    | Space Complexity Engine             | ✅ Done        |
+| 25    | Runtime Estimation Engine           | ✅ Done        |
+| 26    | Benchmark Engine                    | ✅ Done        |
 | 27    | Memory Analyzer                     | ⬜ Not started |
 | 28    | Security Scanner                    | ⬜ Not started |
 | 29    | Bug Detection Engine                | ⬜ Not started |
@@ -45,5 +45,5 @@ Canonical, single-source-of-truth tracker for the 40-phase build roadmap defined
 | 39    | Packaging & Release                 | ⬜ Not started |
 | 40    | Final Review & Production Readiness | ⬜ Not started |
 
-**Current phase:** 23 — Time Complexity Engine (complete)
-**Next phase:** 24 — Space Complexity Engine
+**Current phase:** 26 — Benchmark Engine (complete)
+**Next phase:** 27 — Memory Analyzer

@@ -4,8 +4,8 @@ _Keep this concise — see git log for full history._
 
 ## Status
 
-- **Latest completed phase:** 23 (Time Complexity Engine) — committed
-- **Current phase:** 24 (Space Complexity Engine) — not yet started
+- **Latest completed phase:** 26 (Benchmark Engine) — committed
+- **Current phase:** 27 (Memory Analyzer) — not yet started
 - **Total phases:** 40
 
 ## Repo facts
@@ -29,6 +29,9 @@ _Keep this concise — see git log for full history._
 21: Static Analysis Engine (loops, nesting, recursion, unused vars/imports, dead code, cyclomatic complexity, maintainability index, AnalysisResultStore).
 22: Algorithm Detection (packages/analyzer/src/algorithms) - 14 algorithms, signal-based confidence scoring.
 23: Time Complexity Engine (packages/analyzer/src/time-complexity) - estimateTimeComplexity() prefers a confidently-detected Phase 22 algorithm's known textbook complexity (algorithm-complexity-table.ts), falls back to structural estimation (structural-estimator.ts: loop nesting depth, recursion shape - branching/halving/linear) otherwise. Verified functionally correct: binary search -> O(1)/O(log n)/O(log n) via algorithm table; nested loop -> O(n^2), naive recursion -> O(n)/O(2^n), constant function -> O(1), all via structural fallback.
+24: Space Complexity Engine (packages/analyzer/src/space-complexity).
+25: Runtime Estimation Engine (packages/analyzer/src/runtime-estimation).
+26: Benchmark Engine (packages/benchmark) - measured execution with minimum, maximum, average, median runtime, execution count, CPU trend, and benchmark samples.
 
 ## Known issues
 
@@ -39,4 +42,4 @@ _Keep this concise — see git log for full history._
 
 ## Next step
 
-Start Phase 24 (Space Complexity Engine) per MASTER_02_PHASES.md - read only that phase's spec section from the docs repo, not the whole file. Do not start without explicit instruction.
+Start Phase 27 (Memory Analyzer) per MASTER_02_PHASES.md - read only that phase's spec section from the docs repo, not the whole file. Do not start without explicit instruction.
