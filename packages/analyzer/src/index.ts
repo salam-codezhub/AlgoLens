@@ -24,3 +24,5 @@ export * from "./memory-analysis/structural-estimator.js";
 export * from "./memory-analysis/memory-analysis-engine.js";
 /** Canonical package name, useful for logging and diagnostics. */
 export const PACKAGE_NAME = "@algolens/analyzer" as const;
+
+export * from "./bug-detection/index.js";
