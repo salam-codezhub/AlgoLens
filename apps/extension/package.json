@@ -6,6 +6,10 @@
   "private": true,
   "publisher": "algolens",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/salam-codezhub/AlgoLens.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -16,6 +20,12 @@
     "Visualization"
   ],
   "main": "dist/extension.js",
+  "files": [
+    "dist/**",
+    "README.md",
+    "LICENSE*",
+    "package.json"
+  ],
   "contributes": {
     "commands": [
       {
