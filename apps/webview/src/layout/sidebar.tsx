@@ -4,18 +4,6 @@ import { NavLink } from "react-router";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Input } from "@algolens/ui";
 import { ACTIVITY_BAR_SECTIONS } from "../routes/sections.js";
 
-/**
- * Placeholder recent-file entries. Real data requires the extension-host
- * <-> webview message-passing bridge and the Workspace Context Engine
- * (Phase 18) — neither exists yet. Clearly fake/illustrative rather than
- * silently pretending to be real project data.
- */
-const PLACEHOLDER_RECENT_FILES: readonly string[] = [
-  "src/services/order-processor.ts",
-  "src/utils/complexity-analyzer.ts",
-  "src/api/routes/analysis.ts",
-];
-
 const SIDEBAR_WIDTH_EXPANDED = "w-64";
 const SIDEBAR_WIDTH_COLLAPSED = "w-10";
 
@@ -120,23 +108,6 @@ export function Sidebar(): ReactElement {
                 {filteredSections.length === 0 && (
                   <li className="text-muted-foreground px-2 py-1 text-sm">No matches</li>
                 )}
-              </ul>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="recent-files">
-            <AccordionTrigger>Recent Files</AccordionTrigger>
-            <AccordionContent>
-              <ul className="flex flex-col gap-0.5" data-testid="sidebar-recent-files">
-                {PLACEHOLDER_RECENT_FILES.map((file) => (
-                  <li
-                    key={file}
-                    className="text-muted-foreground hover:bg-secondary hover:text-foreground truncate rounded-md px-2 py-1 font-mono text-xs"
-                    title={file}
-                  >
-                    {file}
-                  </li>
-                ))}
               </ul>
             </AccordionContent>
           </AccordionItem>
