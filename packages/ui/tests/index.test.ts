@@ -1,12 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { PACKAGE_NAME } from "../src/index.js";
+import * as UI from "../src/index.js";
 
-describe("ui public API", () => {
+describe("UI package index", () => {
   it("exports the canonical package name", () => {
-    expect(PACKAGE_NAME).toBe("@algolens/ui");
+    expect(UI.PACKAGE_NAME).toBe("@algolens/ui");
   });
 
-  it("loads the UI package successfully", () => {
-    expect(PACKAGE_NAME).toBeTruthy();
+  it("exports the utility API", () => {
+    expect(UI.cn).toBeDefined();
+    expect(typeof UI.cn).toBe("function");
+  });
+
+  it("exports the page placeholder API", () => {
+    expect(UI.PagePlaceholder).toBeDefined();
+    expect(typeof UI.PagePlaceholder).toBe("function");
+  });
+
+  it("exports the UI component APIs", () => {
+    expect(UI.Button).toBeDefined();
+    expect(UI.Card).toBeDefined();
+    expect(UI.Dialog).toBeDefined();
+    expect(UI.Input).toBeDefined();
+    expect(UI.Tabs).toBeDefined();
+    expect(UI.Accordion).toBeDefined();
   });
 });
