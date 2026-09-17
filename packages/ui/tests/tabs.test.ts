@@ -64,8 +64,12 @@ describe("Tabs components", () => {
 
   it("merges custom classes into all tab components", () => {
     const list = getElementProps(TabsList({ className: "list-custom" }));
-    const trigger = getElementProps(TabsTrigger({ className: "trigger-custom" }));
-    const content = getElementProps(TabsContent({ className: "content-custom" }));
+    const trigger = getElementProps(
+      TabsTrigger({ className: "trigger-custom", value: "custom-trigger" })
+    );
+    const content = getElementProps(
+      TabsContent({ className: "content-custom", value: "custom-content" })
+    );
 
     expect(list.props.className).toContain("list-custom");
     expect(trigger.props.className).toContain("trigger-custom");
