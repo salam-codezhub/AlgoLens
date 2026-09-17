@@ -23,7 +23,7 @@ export type Unsubscribe = () => void;
  * unsubscribe();
  * ```
  */
-export class EventBus<TEventMap extends Record<string, unknown>> {
+export class EventBus<TEventMap extends object> {
   private readonly listeners: {
     [K in keyof TEventMap]?: Set<EventHandler<TEventMap[K]>>;
   } = {};
