@@ -3,11 +3,12 @@ import { AIProviderError } from "../src/errors.js";
 import { withRetry } from "../src/retry.js";
 
 describe("withRetry", () => {
-  it("retries recoverable provider errors and eventually succeeds", () => {
+  it("retries recoverable provider errors and eventually succeeds", async () => {
     let attempts = 0;
 
     const result = await withRetry(
-      () => {
+      async () => {
+        await Promise.resolve();
         attempts += 1;
 
         if (attempts < 3) {
@@ -31,12 +32,13 @@ describe("withRetry", () => {
     expect(attempts).toBe(3);
   });
 
-  it("does not retry non-recoverable provider errors", () => {
+  it("does not retry non-recoverable provider errors", async () => {
     let attempts = 0;
 
     await expect(
       withRetry(
-        () => {
+        async () => {
+          await Promise.resolve();
           attempts += 1;
 
           throw new AIProviderError("Invalid response", {
