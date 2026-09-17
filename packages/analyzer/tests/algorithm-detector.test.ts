@@ -50,7 +50,14 @@ function binarySearch(arr, target) {
     );
 
     for (let i = 1; i < matches.length; i += 1) {
-      expect(matches[i - 1].confidence).toBeGreaterThanOrEqual(matches[i].confidence);
+      const previous = matches[i - 1];
+      const current = matches[i];
+
+      if (previous === undefined || current === undefined) {
+        continue;
+      }
+
+      expect(previous.confidence).toBeGreaterThanOrEqual(current.confidence);
     }
   });
 });
