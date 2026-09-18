@@ -1,11 +1,20 @@
 {
-  "name": "algolens",
-  "displayName": "AlgoLens",
+  "name": "algolens-toolkit",
+  "displayName": "AlgoLens Code Intelligence",
   "description": "Analyze. Optimize. Accelerate. AI-powered code analysis, optimization, benchmarking and documentation, right inside VS Code.",
   "version": "0.1.0",
-  "private": true,
-  "publisher": "algolens",
+  "publisher": "algolens-dev",
   "license": "MIT",
+  "keywords": [
+    "code analysis",
+    "code optimization",
+    "complexity analysis",
+    "security",
+    "benchmarking",
+    "documentation",
+    "AI",
+    "developer tools"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/salam-codezhub/AlgoLens.git"
@@ -20,9 +29,11 @@
     "Visualization"
   ],
   "main": "dist/extension.js",
+  "icon": "icon.png",
   "files": [
     "dist/**",
     "README.md",
+    "icon.png",
     "LICENSE*",
     "package.json"
   ],
