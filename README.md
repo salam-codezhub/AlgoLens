@@ -2,65 +2,73 @@
 
 **Analyze. Optimize. Accelerate.**
 
-AlgoLens is an AI-powered Visual Studio Code extension that helps developers understand, optimize, benchmark, secure and document their source code by combining static analysis with AI reasoning.
+AlgoLens is a Visual Studio Code extension focused on helping developers understand and improve their code through analysis, performance insights, security checks, optimization guidance, and documentation workflows.
 
-> Status: 🚧 Under active development. This repository is being built in incremental, reviewable phases.
+> **Status:** Early development / pre-release
 
 ## What is AlgoLens?
 
-AlgoLens brings together the strengths of tools like GitHub Copilot, SonarQube, CodeRabbit and IDE profilers into a single VS Code extension, so developers can:
+AlgoLens is being developed as an all-in-one developer assistant for code understanding and improvement inside Visual Studio Code.
 
-- Understand what their code does and how it performs
-- See time and space complexity with clear reasoning (best / average / worst case)
-- Get estimated and measured runtime, plus memory analysis
-- Catch bugs, code smells and security issues early
-- Receive AI-explained optimization suggestions with trade-offs and confidence scores
-- Visualize control flow, call graphs and dependency graphs
-- Auto-generate documentation and exportable reports
+The project includes:
 
-## Project Status
+- Code analysis and complexity insights
+- Runtime and memory analysis
+- Bug and code-smell detection
+- Security analysis
+- AI-assisted optimization
+- Documentation generation
+- Visualization and reports
+- Local analysis history
+- VS Code integration
 
-This project is being developed according to a structured 40-phase roadmap defined in the project's governing documentation (`docs/`). Each phase is implemented, reviewed and completed independently before the next begins.
+## Current Extension
 
-See [`PROGRESS.md`](PROGRESS.md) for the current phase and full roadmap status — that file is the single source of truth for project status, so it isn't duplicated here.
+The current VS Code extension provides the foundation for the AlgoLens extension host and workspace integration.
 
-## Repository Structure
+Available commands include:
 
-```text
-AlgoLens/
-├── apps/
-│   ├── extension/     VS Code extension host (presentation-layer glue)
-│   └── webview/       React webview UI
-├── packages/
-│   ├── ai/            AI provider layer (Claude, OpenAI, Gemini, DeepSeek, Qwen)
-│   ├── analyzer/      Static analysis (complexity, algorithm/metric detection)
-│   ├── benchmark/      Benchmark & measured-runtime engine
-│   ├── core/          Core business logic, interfaces, Event Bus, DI
-│   ├── documentation/ Documentation & report generation
-│   ├── optimizer/     Optimization suggestions & patch generation
-│   ├── parser/        AST parsing & language detection
-│   ├── runtime/       Runtime estimation engine
-│   ├── security/      Security scanning
-│   ├── shared/        Cross-cutting utilities, types, constants
-│   ├── storage/       SQLite-backed local storage
-│   ├── ui/            Shared React component library
-│   └── visualization/ Diagrams, graphs, charts
-├── docs/       Project documentation and specifications
-├── assets/     Images, icons and static design assets
-├── scripts/    Developer and build automation scripts
-├── tests/      Cross-package integration/e2e tests
-├── .github/    CI workflows & repo templates (added in later phases)
-├── LICENSE
-├── PROGRESS.md
-└── README.md
-```
+- **AlgoLens: Show Extension Info** — displays extension and dependency information.
+- **AlgoLens: Show Workspace Context** — displays the workspace context available to AlgoLens.
 
-Each `packages/*` and `apps/*` folder contains its own `README.md` describing its responsibilities — see `MASTER_03_ARCHITECTURE.md` and `MASTER_01_PROJECT_BLUEPRINT.md` in the governing docs for the full architectural rationale.
+Additional analysis and AI capabilities are being integrated progressively.
 
-## Getting Started
+## Installation
 
-Setup instructions will be added once the build tooling is configured (see upcoming phases).
+### From Source
+
+Clone the repository:
+
+    git clone https://github.com/salam-codezhub/AlgoLens.git
+    cd AlgoLens
+    npm install
+    npm run build
+
+## Development
+
+From the repository root:
+
+    npm install
+    npm run build
+
+For development, use the extension development build and watch workflow as needed.
+
+## Roadmap
+
+AlgoLens is being developed incrementally toward a complete code intelligence and developer-assistance experience inside Visual Studio Code.
+
+Planned and ongoing areas include deeper code analysis, performance insights, security scanning, AI-assisted optimization, documentation, visualization, reporting, and richer VS Code integration.
+
+## Repository
+
+Source code and project development are available on GitHub:
+
+https://github.com/salam-codezhub/AlgoLens
 
 ## License
 
-Released under the [MIT License](LICENSE).
+AlgoLens is released under the MIT License.
+
+## Contributing
+
+Contributions, bug reports, feature ideas, and improvements are welcome. Please open an issue or pull request in the GitHub repository.
