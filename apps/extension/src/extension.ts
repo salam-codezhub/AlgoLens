@@ -1,4 +1,4 @@
-﻿import * as fs from "fs";
+import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { PACKAGE_NAME as CORE_PACKAGE_NAME, ok } from "@algolens/core";
@@ -6,6 +6,7 @@ import { analyzeSource } from "@algolens/analyzer";
 import type { ServiceResponse } from "@algolens/shared";
 import { VsCodeWorkspaceContextService } from "./workspace-context-service.js";
 import { detectLanguage } from "@algolens/parser";
+import { createDatabase, StorageService } from "@algolens/storage";
 
 export const PACKAGE_NAME = "@algolens/extension" as const;
 
@@ -101,7 +102,8 @@ async function analyzeSelectedFile(
 
 async function refreshDashboard(
   panel: vscode.WebviewPanel,
-  workspaceContextService: VsCodeWorkspaceContextService
+  workspaceContextService: VsCodeWorkspaceContextService,
+  storage: StorageService
 ): Promise<void> {
   await sendWorkspaceContext(panel, workspaceContextService);
   const analysisResult = await analyzeSelectedFile(workspaceContextService);
@@ -113,12 +115,19 @@ async function refreshDashboard(
     };
 
     await panel.webview.postMessage(analysisMessage);
+
+    storage.save(
+      "history",
+      `${analysisResult.filePath}:${String(analysisResult.analyzedAt)}`,
+      JSON.stringify(analysisResult)
+    );
   }
 }
 
 function createDashboardPanel(
   context: vscode.ExtensionContext,
-  workspaceContextService: VsCodeWorkspaceContextService
+  workspaceContextService: VsCodeWorkspaceContextService,
+  storage: StorageService
 ): vscode.WebviewPanel {
   const panel = vscode.window.createWebviewPanel(
     "algolensDashboard",
@@ -168,11 +177,11 @@ function createDashboardPanel(
   panel.webview.onDidReceiveMessage(
     async (message: WebviewMessage) => {
       if (message.type === "algolens.ready") {
-        await refreshDashboard(panel, workspaceContextService);
+        await refreshDashboard(panel, workspaceContextService, storage);
       }
 
       if (message.type === "algolens.refreshWorkspace") {
-        await refreshDashboard(panel, workspaceContextService);
+        await refreshDashboard(panel, workspaceContextService, storage);
       }
     },
     undefined,
@@ -195,6 +204,12 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   const workspaceContextService = new VsCodeWorkspaceContextService();
+  const storageDirectory = context.globalStorageUri.fsPath;
+  fs.mkdirSync(storageDirectory, { recursive: true });
+  const database = createDatabase({
+    databasePath: path.join(storageDirectory, "history.db"),
+  });
+  const storage = new StorageService(database);
 
   const showWorkspaceContextCommand = vscode.commands.registerCommand(
     SHOW_WORKSPACE_CONTEXT_COMMAND_ID,
@@ -208,12 +223,12 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   const showDashboardCommand = vscode.commands.registerCommand(SHOW_DASHBOARD_COMMAND_ID, () => {
-    createDashboardPanel(context, workspaceContextService);
+    createDashboardPanel(context, workspaceContextService, storage);
   });
 
   const saveListener = vscode.workspace.onDidSaveTextDocument(() => {
     if (activeDashboardPanel) {
-      void refreshDashboard(activeDashboardPanel, workspaceContextService);
+      void refreshDashboard(activeDashboardPanel, workspaceContextService, storage);
     }
   });
 

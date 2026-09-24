@@ -58,7 +58,8 @@
     "@algolens/analyzer": "^0.1.0",
     "@algolens/core": "^0.1.0",
     "@algolens/parser": "^0.1.0",
-    "@algolens/shared": "^0.1.0"
+    "@algolens/shared": "^0.1.0",
+    "@algolens/storage": "^0.1.0"
   },
   "scripts": {
     "build": "webpack --config webpack.config.cjs --mode production && node copy-webview.cjs",
