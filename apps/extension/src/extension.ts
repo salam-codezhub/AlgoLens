@@ -12,6 +12,7 @@ export const PACKAGE_NAME = "@algolens/extension" as const;
 const SHOW_INFO_COMMAND_ID = "algolens.showInfo";
 const SHOW_WORKSPACE_CONTEXT_COMMAND_ID = "algolens.showWorkspaceContext";
 const SHOW_DASHBOARD_COMMAND_ID = "algolens.showDashboard";
+let activeDashboardPanel: vscode.WebviewPanel | undefined;
 
 type WebviewMessage =
   { readonly type: "algolens.ready" } | { readonly type: "algolens.refreshWorkspace" };
@@ -98,6 +99,23 @@ async function analyzeSelectedFile(
   }
 }
 
+async function refreshDashboard(
+  panel: vscode.WebviewPanel,
+  workspaceContextService: VsCodeWorkspaceContextService
+): Promise<void> {
+  await sendWorkspaceContext(panel, workspaceContextService);
+  const analysisResult = await analyzeSelectedFile(workspaceContextService);
+
+  if (analysisResult) {
+    const analysisMessage: ExtensionMessage = {
+      type: "algolens.analysisResult",
+      payload: analysisResult,
+    };
+
+    await panel.webview.postMessage(analysisMessage);
+  }
+}
+
 function createDashboardPanel(
   context: vscode.ExtensionContext,
   workspaceContextService: VsCodeWorkspaceContextService
@@ -112,6 +130,8 @@ function createDashboardPanel(
       localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, "webview")],
     }
   );
+
+  activeDashboardPanel = panel;
 
   const webviewRoot = vscode.Uri.joinPath(context.extensionUri, "webview");
   const indexPath = path.join(webviewRoot.fsPath, "index.html");
@@ -148,21 +168,11 @@ function createDashboardPanel(
   panel.webview.onDidReceiveMessage(
     async (message: WebviewMessage) => {
       if (message.type === "algolens.ready") {
-        await sendWorkspaceContext(panel, workspaceContextService);
-        const analysisResult = await analyzeSelectedFile(workspaceContextService);
-
-        if (analysisResult) {
-          const analysisMessage: ExtensionMessage = {
-            type: "algolens.analysisResult",
-            payload: analysisResult,
-          };
-
-          await panel.webview.postMessage(analysisMessage);
-        }
+        await refreshDashboard(panel, workspaceContextService);
       }
 
       if (message.type === "algolens.refreshWorkspace") {
-        await sendWorkspaceContext(panel, workspaceContextService);
+        await refreshDashboard(panel, workspaceContextService);
       }
     },
     undefined,
@@ -201,7 +211,18 @@ export function activate(context: vscode.ExtensionContext): void {
     createDashboardPanel(context, workspaceContextService);
   });
 
-  context.subscriptions.push(showInfoCommand, showWorkspaceContextCommand, showDashboardCommand);
+  const saveListener = vscode.workspace.onDidSaveTextDocument(() => {
+    if (activeDashboardPanel) {
+      void refreshDashboard(activeDashboardPanel, workspaceContextService);
+    }
+  });
+
+  context.subscriptions.push(
+    showInfoCommand,
+    showWorkspaceContextCommand,
+    showDashboardCommand,
+    saveListener
+  );
 }
 
 export function deactivate(): void {

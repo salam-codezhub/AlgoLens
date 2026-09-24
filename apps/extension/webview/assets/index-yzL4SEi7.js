@@ -39016,9 +39016,9 @@ function jU({ title: e, items: t }) {
 }
 function MU({ analysis: e }) {
   let t = e.deadCode.map(
-      (e) => `${e.afterStatementType}: ${e.unreachableStatementCount} unreachable`
+      (e) => `${e.afterStatementType}: ${String(e.unreachableStatementCount)} unreachable`
     ),
-    n = e.functionComplexity.map((e) => `${e.name}: ${e.cyclomaticComplexity}`);
+    n = e.functionComplexity.map((e) => `${e.name}: ${String(e.cyclomaticComplexity)}`);
   return (0, B.jsxs)(zo, {
     "data-testid": `static-analysis-details`,
     children: [
