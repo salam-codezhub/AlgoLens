@@ -2,7 +2,7 @@
   "name": "algolens-toolkit",
   "displayName": "AlgoLens Code Intelligence",
   "description": "Analyze. Optimize. Accelerate. AI-powered code analysis, optimization, benchmarking and documentation, right inside VS Code.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "algolens-dev",
   "license": "MIT",
   "keywords": [
@@ -32,6 +32,7 @@
   "icon": "icon.png",
   "files": [
     "dist/**",
+    "webview/**",
     "README.md",
     "icon.png",
     "LICENSE*",
@@ -46,16 +47,21 @@
       {
         "command": "algolens.showWorkspaceContext",
         "title": "AlgoLens: Show Workspace Context"
+      },
+      {
+        "command": "algolens.showDashboard",
+        "title": "AlgoLens: Show Dashboard"
       }
     ]
   },
   "dependencies": {
+    "@algolens/analyzer": "^0.1.0",
     "@algolens/core": "^0.1.0",
     "@algolens/parser": "^0.1.0",
     "@algolens/shared": "^0.1.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.cjs --mode production",
+    "build": "webpack --config webpack.config.cjs --mode production && node copy-webview.cjs",
     "dev": "webpack --config webpack.config.cjs --mode development --watch",
     "clean": "rimraf dist"
   }

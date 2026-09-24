@@ -16,6 +16,7 @@ async function readDependencies(root: vscode.WorkspaceFolder): Promise<readonly 
     const packageJsonUri = vscode.Uri.joinPath(root.uri, "package.json");
     const bytes = await vscode.workspace.fs.readFile(packageJsonUri);
     const parsed = JSON.parse(new TextDecoder().decode(bytes)) as PackageJsonShape;
+
     return [
       ...Object.keys(parsed.dependencies ?? {}),
       ...Object.keys(parsed.devDependencies ?? {}),
@@ -30,6 +31,7 @@ async function readDependencies(root: vscode.WorkspaceFolder): Promise<readonly 
 async function readProjectStructure(root: vscode.WorkspaceFolder): Promise<readonly string[]> {
   try {
     const entries = await vscode.workspace.fs.readDirectory(root.uri);
+
     return entries
       .filter(([name]) => name !== "node_modules" && name !== ".git")
       .map(([name]) => name);
@@ -47,28 +49,43 @@ async function readProjectStructure(root: vscode.WorkspaceFolder): Promise<reado
  */
 function detectWorkspaceLanguage(files: readonly string[]): string | undefined {
   const activeEditor = vscode.window.activeTextEditor;
+
   if (activeEditor) {
     const result = detectLanguage({
       vscodeLanguageId: activeEditor.document.languageId,
       filePath: activeEditor.document.uri.fsPath,
       content: activeEditor.document.getText(),
     });
+
     if (result.language !== "unknown") {
       return result.language;
     }
   }
+
   return detectDominantLanguage(files);
 }
 
 function getSelectedFile(): string | undefined {
-  const uri = vscode.window.activeTextEditor?.document.uri;
-  return uri ? vscode.workspace.asRelativePath(uri) : undefined;
+  const activeUri = vscode.window.activeTextEditor?.document.uri;
+
+  if (activeUri) {
+    return vscode.workspace.asRelativePath(activeUri);
+  }
+
+  const visibleEditor = vscode.window.visibleTextEditors[0];
+
+  if (visibleEditor) {
+    return vscode.workspace.asRelativePath(visibleEditor.document.uri);
+  }
+
+  return undefined;
 }
 
 function getOpenEditors(): readonly string[] {
   const paths = vscode.window.visibleTextEditors.map((editor) =>
     vscode.workspace.asRelativePath(editor.document.uri)
   );
+
   return [...new Set(paths)];
 }
 
@@ -86,6 +103,16 @@ function getOpenEditors(): readonly string[] {
  * require guessing at those.
  */
 export class VsCodeWorkspaceContextService implements WorkspaceContextService {
+  private lastSelectedFile: string | undefined = getSelectedFile();
+
+  constructor() {
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor) {
+        this.lastSelectedFile = vscode.workspace.asRelativePath(editor.document.uri);
+      }
+    });
+  }
+
   async getWorkspaceContext(): Promise<WorkspaceContext> {
     const root = vscode.workspace.workspaceFolders?.[0];
 
@@ -97,7 +124,7 @@ export class VsCodeWorkspaceContextService implements WorkspaceContextService {
         imports: [],
         dependencies: [],
         projectStructure: [],
-        selectedFile: getSelectedFile(),
+        selectedFile: this.lastSelectedFile,
         selectedFunction: undefined,
         openEditors: getOpenEditors(),
         recentAnalysis: [],
@@ -109,6 +136,7 @@ export class VsCodeWorkspaceContextService implements WorkspaceContextService {
       readDependencies(root),
       readProjectStructure(root),
     ]);
+
     const files = fileUris.map((uri) => vscode.workspace.asRelativePath(uri));
 
     return {
@@ -118,7 +146,7 @@ export class VsCodeWorkspaceContextService implements WorkspaceContextService {
       imports: [],
       dependencies,
       projectStructure,
-      selectedFile: getSelectedFile(),
+      selectedFile: this.lastSelectedFile,
       selectedFunction: undefined,
       openEditors: getOpenEditors(),
       recentAnalysis: [],

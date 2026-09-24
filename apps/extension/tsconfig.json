@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist-tsc"
+    "outDir": "dist-tsc",
+    "paths": {
+      "@algolens/analyzer": ["../../packages/analyzer/dist/index.d.ts"],
+      "@algolens/analyzer/*": ["../../packages/analyzer/dist/*"]
+    }
   },
   "include": ["src"],
   "references": [

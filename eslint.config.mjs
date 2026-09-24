@@ -1,4 +1,4 @@
-// @ts-check
+﻿// @ts-check
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
@@ -21,6 +21,7 @@ export default tseslint.config(
   {
     ignores: [
       "**/dist/**",
+      "**/webview/**",
       "**/dist-tsc/**",
       "**/node_modules/**",
       "**/*.d.ts",
@@ -45,7 +46,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      // Strict typing — belt-and-braces alongside tsconfig strict mode.
+      // Strict typing â€” belt-and-braces alongside tsconfig strict mode.
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
@@ -87,7 +88,7 @@ export default tseslint.config(
     },
   },
 
-  // Config/build scripts run under Node without full type info — relax the
+  // Config/build scripts run under Node without full type info â€” relax the
   // type-checked rules there rather than dragging every dotfile into the
   // TypeScript project graph.
   {
@@ -96,7 +97,7 @@ export default tseslint.config(
   },
 
   // Genuinely CommonJS files (e.g. webpack.config.cjs) need require()/
-  // module.exports — exempt them from the TS-authored-code rules entirely
+  // module.exports â€” exempt them from the TS-authored-code rules entirely
   // rather than fighting the module system they're required to use.
   {
     files: ["**/*.cjs"],
