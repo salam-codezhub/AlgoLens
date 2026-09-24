@@ -21,7 +21,7 @@ export default tseslint.config(
   {
     ignores: [
       "**/dist/**",
-      "**/webview/**",
+      "apps/extension/webview/**",
       "**/dist-tsc/**",
       "**/node_modules/**",
       "**/*.d.ts",

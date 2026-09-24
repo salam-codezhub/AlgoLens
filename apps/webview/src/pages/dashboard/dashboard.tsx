@@ -1,7 +1,8 @@
-import type { ReactElement } from "react";
+﻿import type { ReactElement } from "react";
 import { DashboardHeader } from "./dashboard-header.js";
 import { MetricCard } from "./metric-card.js";
 import { TrendChart } from "./trend-chart.js";
+import { StaticAnalysisDetails } from "./static-analysis-details.js";
 import type { ScoreCardData, TrendChartData } from "./mock-data.js";
 import { useAnalysisResult } from "../../providers/store-provider.js";
 
@@ -11,37 +12,37 @@ function buildScoreCards(analysis: ReturnType<typeof useAnalysisResult>): readon
       {
         id: "maintainability",
         title: "Maintainability",
-        value: "—",
+        value: "â€”",
         description: "Waiting for static analysis",
       },
       {
         id: "complexity",
         title: "Cyclomatic Complexity",
-        value: "—",
+        value: "â€”",
         description: "Waiting for static analysis",
       },
       {
         id: "loops",
         title: "Loops",
-        value: "—",
+        value: "â€”",
         description: "Waiting for static analysis",
       },
       {
         id: "nesting",
         title: "Max Loop Nesting",
-        value: "—",
+        value: "â€”",
         description: "Waiting for static analysis",
       },
       {
         id: "recursion",
         title: "Recursive Functions",
-        value: "—",
+        value: "â€”",
         description: "Waiting for static analysis",
       },
       {
         id: "issues",
         title: "Static Issues",
-        value: "—",
+        value: "â€”",
         description: "Waiting for static analysis",
       },
     ];
@@ -126,6 +127,8 @@ export function Dashboard(): ReactElement {
           <MetricCard key={card.id} data={card} />
         ))}
       </div>
+
+      {analysis ? <StaticAnalysisDetails analysis={analysis} /> : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {NO_HISTORY_CHARTS.map((chart) => (

@@ -18505,7 +18505,7 @@ function qc(e) {
   };
 }
 var Jc = {
-    projectName: `Loading…`,
+    projectName: `Loadingâ€¦`,
     currentFile: `No file selected`,
     language: `Unknown`,
     scanStatus: `idle`,
@@ -18520,11 +18520,11 @@ function Zc({ children: e }) {
       let e = Kc();
       if (!e) return;
       let n = (e) => {
-        if (e.data?.type === `algolens.workspaceContext`) {
+        if (e.data.type === `algolens.workspaceContext`) {
           t.current.setState(qc(e.data.payload));
           return;
         }
-        e.data?.type === `algolens.analysisResult` && r({ result: e.data.payload });
+        r({ result: e.data.payload });
       };
       return (
         window.addEventListener(`message`, n),
@@ -39001,38 +39001,79 @@ function AU({ data: e }) {
     ],
   });
 }
-function jU(e) {
+function jU({ title: e, items: t }) {
+  return (0, B.jsxs)(`div`, {
+    children: [
+      (0, B.jsx)(`p`, { className: `mb-2 text-sm font-medium`, children: e }),
+      t.length === 0
+        ? (0, B.jsx)(`p`, { className: `text-muted-foreground text-sm`, children: `None detected` })
+        : (0, B.jsx)(`ul`, {
+            className: `space-y-1 text-sm`,
+            children: t.map((e) => (0, B.jsx)(`li`, { className: `truncate`, children: e }, e)),
+          }),
+    ],
+  });
+}
+function MU({ analysis: e }) {
+  let t = e.deadCode.map(
+      (e) => `${e.afterStatementType}: ${e.unreachableStatementCount} unreachable`
+    ),
+    n = e.functionComplexity.map((e) => `${e.name}: ${e.cyclomaticComplexity}`);
+  return (0, B.jsxs)(zo, {
+    "data-testid": `static-analysis-details`,
+    children: [
+      (0, B.jsx)(Bo, { children: (0, B.jsx)(Vo, { children: `Static Analysis Details` }) }),
+      (0, B.jsx)(Uo, {
+        children: (0, B.jsxs)(`div`, {
+          className: `grid grid-cols-1 gap-6 md:grid-cols-2`,
+          children: [
+            (0, B.jsx)(jU, { title: `Unused Imports`, items: e.unusedImports.map((e) => e.name) }),
+            (0, B.jsx)(jU, {
+              title: `Unused Variables`,
+              items: e.unusedVariables.map((e) => e.name),
+            }),
+            (0, B.jsx)(jU, { title: `Dead Code`, items: t }),
+            (0, B.jsx)(jU, { title: `Recursive Functions`, items: e.recursiveFunctions }),
+            (0, B.jsx)(jU, { title: `Function Complexity`, items: n }),
+            (0, B.jsx)(jU, { title: `Detected Imports`, items: e.imports }),
+          ],
+        }),
+      }),
+    ],
+  });
+}
+function NU(e) {
   if (!e)
     return [
       {
         id: `maintainability`,
         title: `Maintainability`,
-        value: `—`,
+        value: `â€”`,
         description: `Waiting for static analysis`,
       },
       {
         id: `complexity`,
         title: `Cyclomatic Complexity`,
-        value: `—`,
+        value: `â€”`,
         description: `Waiting for static analysis`,
       },
-      { id: `loops`, title: `Loops`, value: `—`, description: `Waiting for static analysis` },
+      { id: `loops`, title: `Loops`, value: `â€”`, description: `Waiting for static analysis` },
       {
         id: `nesting`,
         title: `Max Loop Nesting`,
-        value: `—`,
+        value: `â€”`,
         description: `Waiting for static analysis`,
       },
       {
         id: `recursion`,
         title: `Recursive Functions`,
-        value: `—`,
+        value: `â€”`,
         description: `Waiting for static analysis`,
       },
       {
         id: `issues`,
         title: `Static Issues`,
-        value: `—`,
+        value: `â€”`,
         description: `Waiting for static analysis`,
       },
     ];
@@ -39074,13 +39115,14 @@ function jU(e) {
     },
   ];
 }
-var MU = [
+var PU = [
   { id: `runtime-trend`, title: `Runtime Trend`, unit: `ms`, points: [] },
   { id: `memory-trend`, title: `Memory Trend`, unit: `MB`, points: [] },
   { id: `complexity-trend`, title: `Complexity Trend`, unit: `cyclomatic`, points: [] },
 ];
-function NU() {
-  let e = jU($c());
+function FU() {
+  let e = $c(),
+    t = NU(e);
   return (0, B.jsxs)(`div`, {
     className: `flex flex-col gap-4`,
     "data-testid": `dashboard`,
@@ -39088,28 +39130,29 @@ function NU() {
       (0, B.jsx)(xl, {}),
       (0, B.jsx)(`div`, {
         className: `grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`,
-        children: e.map((e) => (0, B.jsx)(Sl, { data: e }, e.id)),
+        children: t.map((e) => (0, B.jsx)(Sl, { data: e }, e.id)),
       }),
+      e ? (0, B.jsx)(MU, { analysis: e }) : null,
       (0, B.jsx)(`div`, {
         className: `grid grid-cols-1 gap-4 lg:grid-cols-3`,
-        children: MU.map((e) => (0, B.jsx)(AU, { data: e }, e.id)),
+        children: PU.map((e) => (0, B.jsx)(AU, { data: e }, e.id)),
       }),
     ],
   });
 }
-var PU = [
+var IU = [
     { mode: `dark`, label: `Dark` },
     { mode: `light`, label: `Light` },
     { mode: `auto`, label: `Auto` },
   ],
-  FU = [
+  LU = [
     { color: `blue`, swatchClass: `bg-[#3e8eff]` },
     { color: `purple`, swatchClass: `bg-[#a855f7]` },
     { color: `green`, swatchClass: `bg-[#22c55e]` },
     { color: `amber`, swatchClass: `bg-[#f59e0b]` },
     { color: `rose`, swatchClass: `bg-[#ef4444]` },
   ];
-function IU() {
+function RU() {
   let { themeMode: e, resolvedTheme: t, accentColor: n, setThemeMode: r, setAccentColor: i } = ll();
   return (0, B.jsxs)(`div`, {
     className: `flex flex-col gap-3`,
@@ -39119,7 +39162,7 @@ function IU() {
         className: `flex items-center gap-2`,
         children: [
           (0, B.jsx)(`span`, { className: `text-muted-foreground text-xs`, children: `Theme:` }),
-          PU.map(({ mode: t, label: n }) =>
+          IU.map(({ mode: t, label: n }) =>
             (0, B.jsx)(
               Ro,
               {
@@ -39146,7 +39189,7 @@ function IU() {
         className: `flex items-center gap-2`,
         children: [
           (0, B.jsx)(`span`, { className: `text-muted-foreground text-xs`, children: `Accent:` }),
-          FU.map(({ color: e, swatchClass: t }) =>
+          LU.map(({ color: e, swatchClass: t }) =>
             (0, B.jsx)(
               `button`,
               {
@@ -39167,7 +39210,7 @@ function IU() {
     ],
   });
 }
-function LU() {
+function zU() {
   return (0, B.jsx)(`div`, {
     className: `flex max-w-xl flex-col gap-4`,
     "data-testid": `settings`,
@@ -39179,21 +39222,21 @@ function LU() {
             (0, B.jsx)(Ho, { children: `Theme mode and accent color.` }),
           ],
         }),
-        (0, B.jsx)(Uo, { children: (0, B.jsx)(IU, {}) }),
+        (0, B.jsx)(Uo, { children: (0, B.jsx)(RU, {}) }),
       ],
     }),
   });
 }
-var RU = { "/": () => (0, B.jsx)(NU, {}), "/settings": () => (0, B.jsx)(LU, {}) },
-  zU = dl.map((e) => {
-    let t = RU[e.path],
+var BU = { "/": () => (0, B.jsx)(FU, {}), "/settings": () => (0, B.jsx)(zU, {}) },
+  VU = dl.map((e) => {
+    let t = BU[e.path],
       n = t ? t() : (0, B.jsx)(Gi, { title: e.title, description: e.description });
     return e.path === `/` ? { index: !0, element: n } : { path: e.path, element: n };
   }),
-  BU = Or([{ path: `/`, element: (0, B.jsx)(_l, {}), children: zU }], { initialEntries: [`/`] });
-function VU() {
-  return (0, B.jsx)(ul, { children: (0, B.jsx)(Ar, { router: BU }) });
+  HU = Or([{ path: `/`, element: (0, B.jsx)(_l, {}), children: VU }], { initialEntries: [`/`] });
+function UU() {
+  return (0, B.jsx)(ul, { children: (0, B.jsx)(Ar, { router: HU }) });
 }
-var HU = document.getElementById(`root`);
-if (!HU) throw Error(`Root element #root not found in index.html`);
-(0, Wi.createRoot)(HU).render((0, B.jsx)(A.StrictMode, { children: (0, B.jsx)(VU, {}) }));
+var WU = document.getElementById(`root`);
+if (!WU) throw Error(`Root element #root not found in index.html`);
+(0, Wi.createRoot)(WU).render((0, B.jsx)(A.StrictMode, { children: (0, B.jsx)(UU, {}) }));
