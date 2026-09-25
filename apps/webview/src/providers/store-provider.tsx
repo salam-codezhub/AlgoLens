@@ -25,8 +25,25 @@ interface AnalysisResultMessage {
   readonly payload: StaticAnalysisResult;
 }
 
+interface AnalysisHistoryMessage {
+  readonly type: "algolens.analysisHistory";
+  readonly payload: readonly {
+    readonly analyzedAt: number;
+    readonly filePath: string;
+    readonly complexity: number;
+  }[];
+}
+
 export interface AnalysisState {
   readonly result: StaticAnalysisResult | undefined;
+}
+
+export interface AnalysisHistoryState {
+  readonly entries: readonly {
+    readonly analyzedAt: number;
+    readonly filePath: string;
+    readonly complexity: number;
+  }[];
 }
 
 function getVsCodeApi(): VsCodeApi | undefined {
@@ -57,10 +74,17 @@ const AnalysisContext = createContext<AnalysisState>({
   result: undefined,
 });
 
+const AnalysisHistoryContext = createContext<AnalysisHistoryState>({
+  entries: [],
+});
+
 export function StoreProvider({ children }: { readonly children: ReactNode }): ReactElement {
   const storeRef = useRef(createStore<ProjectContext>(DEFAULT_PROJECT_CONTEXT));
   const [analysisState, setAnalysisState] = useState<AnalysisState>({
     result: undefined,
+  });
+  const [analysisHistoryState, setAnalysisHistoryState] = useState<AnalysisHistoryState>({
+    entries: [],
   });
 
   useEffect(() => {
@@ -70,10 +94,15 @@ export function StoreProvider({ children }: { readonly children: ReactNode }): R
     }
 
     const handleMessage = (
-      event: MessageEvent<WorkspaceContextMessage | AnalysisResultMessage>
+      event: MessageEvent<WorkspaceContextMessage | AnalysisResultMessage | AnalysisHistoryMessage>
     ) => {
       if (event.data.type === "algolens.workspaceContext") {
         storeRef.current.setState(toProjectContext(event.data.payload));
+        return;
+      }
+
+      if (event.data.type === "algolens.analysisHistory") {
+        setAnalysisHistoryState({ entries: event.data.payload });
         return;
       }
 
@@ -92,7 +121,11 @@ export function StoreProvider({ children }: { readonly children: ReactNode }): R
 
   return (
     <StoreContext.Provider value={storeRef.current}>
-      <AnalysisContext.Provider value={analysisState}>{children}</AnalysisContext.Provider>
+      <AnalysisContext.Provider value={analysisState}>
+        <AnalysisHistoryContext.Provider value={analysisHistoryState}>
+          {children}
+        </AnalysisHistoryContext.Provider>
+      </AnalysisContext.Provider>
     </StoreContext.Provider>
   );
 }
@@ -106,4 +139,9 @@ export function useProjectContext(): ProjectContext {
 /** Reads the latest static analysis result. */
 export function useAnalysisResult(): StaticAnalysisResult | undefined {
   return useContext(AnalysisContext).result;
+}
+
+/** Reads persisted static analysis history. */
+export function useAnalysisHistory(): AnalysisHistoryState["entries"] {
+  return useContext(AnalysisHistoryContext).entries;
 }

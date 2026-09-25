@@ -1,4 +1,4 @@
-import * as fs from "fs";
+﻿import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { PACKAGE_NAME as CORE_PACKAGE_NAME, ok } from "@algolens/core";
@@ -26,6 +26,14 @@ type ExtensionMessage =
   | {
       readonly type: "algolens.analysisResult";
       readonly payload: Awaited<ReturnType<typeof analyzeSource>>;
+    }
+  | {
+      readonly type: "algolens.analysisHistory";
+      readonly payload: readonly {
+        readonly analyzedAt: number;
+        readonly filePath: string;
+        readonly complexity: number;
+      }[];
     };
 export function corePackageDependency(): ServiceResponse<string> {
   return ok(CORE_PACKAGE_NAME);
@@ -100,6 +108,30 @@ async function analyzeSelectedFile(
   }
 }
 
+function getAnalysisHistory(storage: StorageService): readonly {
+  readonly analyzedAt: number;
+  readonly filePath: string;
+  readonly complexity: number;
+}[] {
+  return storage
+    .list("history")
+    .map((record) => {
+      try {
+        const analysis = JSON.parse(record.value) as Awaited<ReturnType<typeof analyzeSource>>;
+        return {
+          analyzedAt: analysis.analyzedAt,
+          filePath: analysis.filePath,
+          complexity: analysis.fileCyclomaticComplexity,
+        };
+      } catch {
+        return undefined;
+      }
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
+    .sort((left, right) => left.analyzedAt - right.analyzedAt)
+    .slice(-20);
+}
+
 async function refreshDashboard(
   panel: vscode.WebviewPanel,
   workspaceContextService: VsCodeWorkspaceContextService,
@@ -122,6 +154,13 @@ async function refreshDashboard(
       JSON.stringify(analysisResult)
     );
   }
+
+  const historyMessage: ExtensionMessage = {
+    type: "algolens.analysisHistory",
+    payload: getAnalysisHistory(storage),
+  };
+
+  await panel.webview.postMessage(historyMessage);
 }
 
 function createDashboardPanel(

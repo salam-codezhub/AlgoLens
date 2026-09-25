@@ -4,7 +4,7 @@ import { MetricCard } from "./metric-card.js";
 import { TrendChart } from "./trend-chart.js";
 import { StaticAnalysisDetails } from "./static-analysis-details.js";
 import type { ScoreCardData, TrendChartData } from "./mock-data.js";
-import { useAnalysisResult } from "../../providers/store-provider.js";
+import { useAnalysisHistory, useAnalysisResult } from "../../providers/store-provider.js";
 
 function buildScoreCards(analysis: ReturnType<typeof useAnalysisResult>): readonly ScoreCardData[] {
   if (!analysis) {
@@ -93,30 +93,33 @@ function buildScoreCards(analysis: ReturnType<typeof useAnalysisResult>): readon
   ];
 }
 
-const NO_HISTORY_CHARTS: readonly TrendChartData[] = [
-  {
-    id: "runtime-trend",
-    title: "Runtime Trend",
-    unit: "ms",
-    points: [],
-  },
-  {
-    id: "memory-trend",
-    title: "Memory Trend",
-    unit: "MB",
-    points: [],
-  },
-  {
-    id: "complexity-trend",
-    title: "Complexity Trend",
-    unit: "cyclomatic",
-    points: [],
-  },
-];
+function formatHistoryLabel(analyzedAt: number): string {
+  return new Date(analyzedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function buildHistoryCharts(
+  history: ReturnType<typeof useAnalysisHistory>
+): readonly TrendChartData[] {
+  return [
+    { id: "runtime-trend", title: "Runtime Trend", unit: "ms", points: [] },
+    { id: "memory-trend", title: "Memory Trend", unit: "MB", points: [] },
+    {
+      id: "complexity-trend",
+      title: "Complexity Trend",
+      unit: "cyclomatic",
+      points: history.map((entry) => ({
+        label: formatHistoryLabel(entry.analyzedAt),
+        value: entry.complexity,
+      })),
+    },
+  ];
+}
 
 export function Dashboard(): ReactElement {
   const analysis = useAnalysisResult();
+  const history = useAnalysisHistory();
   const scoreCards = buildScoreCards(analysis);
+  const trendCharts = buildHistoryCharts(history);
 
   return (
     <div className="flex flex-col gap-4" data-testid="dashboard">
@@ -131,7 +134,7 @@ export function Dashboard(): ReactElement {
       {analysis ? <StaticAnalysisDetails analysis={analysis} /> : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {NO_HISTORY_CHARTS.map((chart) => (
+        {trendCharts.map((chart) => (
           <TrendChart key={chart.id} data={chart} />
         ))}
       </div>
