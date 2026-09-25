@@ -2,7 +2,7 @@
   "name": "algolens-toolkit",
   "displayName": "AlgoLens Code Intelligence",
   "description": "Analyze. Optimize. Accelerate. AI-powered code analysis, optimization, benchmarking and documentation, right inside VS Code.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "algolens-dev",
   "license": "MIT",
   "keywords": [
