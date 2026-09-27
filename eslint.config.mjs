@@ -1,4 +1,4 @@
-﻿// @ts-check
+// @ts-check
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
@@ -85,6 +85,15 @@ export default tseslint.config(
 
       // Never swallow errors silently.
       "no-empty": ["error", { allowEmptyCatch: false }],
+    },
+  },
+
+  // Package tests are validated by Vitest/TypeScript separately; keep ESLint structural here.
+  {
+    files: ["packages/runtime/tests/**/*.ts", "packages/benchmark/tests/**/*.ts"],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      parserOptions: { projectService: false },
     },
   },
 

@@ -7,7 +7,9 @@
       "@algolens/analyzer": ["../../packages/analyzer/dist/index.d.ts"],
       "@algolens/analyzer/*": ["../../packages/analyzer/dist/*"],
       "@algolens/storage": ["../../packages/storage/dist/index.d.ts"],
-      "@algolens/storage/*": ["../../packages/storage/dist/*"]
+      "@algolens/storage/*": ["../../packages/storage/dist/*"],
+      "@algolens/runtime": ["../../packages/runtime/dist/index.d.ts"],
+      "@algolens/runtime/*": ["../../packages/runtime/dist/*"]
     }
   },
   "include": ["src"],
@@ -15,6 +17,7 @@
     { "path": "../../packages/core" },
     { "path": "../../packages/parser" },
     { "path": "../../packages/shared" },
-    { "path": "../../packages/storage" }
+    { "path": "../../packages/storage" },
+    { "path": "../../packages/runtime" }
   ]
 }

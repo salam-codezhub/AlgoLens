@@ -58,6 +58,7 @@
     "@algolens/analyzer": "^0.1.0",
     "@algolens/core": "^0.1.0",
     "@algolens/parser": "^0.1.0",
+    "@algolens/runtime": "^0.1.0",
     "@algolens/shared": "^0.1.0",
     "@algolens/storage": "^0.1.0"
   },

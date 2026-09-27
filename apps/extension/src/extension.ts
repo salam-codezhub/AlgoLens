@@ -1,8 +1,9 @@
-﻿import * as fs from "fs";
+import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { PACKAGE_NAME as CORE_PACKAGE_NAME, ok } from "@algolens/core";
 import { analyzeSource } from "@algolens/analyzer";
+import { measureRuntimeAsync } from "@algolens/runtime";
 import type { ServiceResponse } from "@algolens/shared";
 import { VsCodeWorkspaceContextService } from "./workspace-context-service.js";
 import { detectLanguage } from "@algolens/parser";
@@ -33,29 +34,21 @@ type ExtensionMessage =
         readonly analyzedAt: number;
         readonly filePath: string;
         readonly complexity: number;
+        readonly runtimeMs: number;
       }[];
     };
+
 export function corePackageDependency(): ServiceResponse<string> {
   return ok(CORE_PACKAGE_NAME);
 }
 
-async function sendWorkspaceContext(
-  panel: vscode.WebviewPanel,
-  workspaceContextService: VsCodeWorkspaceContextService
-): Promise<void> {
-  const workspaceContext = await workspaceContextService.getWorkspaceContext();
-
-  const message: ExtensionMessage = {
-    type: "algolens.workspaceContext",
-    payload: workspaceContext,
-  };
-
-  await panel.webview.postMessage(message);
-}
-
-async function analyzeSelectedFile(
-  workspaceContextService: VsCodeWorkspaceContextService
-): Promise<Awaited<ReturnType<typeof analyzeSource>> | undefined> {
+async function analyzeSelectedFile(workspaceContextService: VsCodeWorkspaceContextService): Promise<
+  | {
+      readonly analysis: Awaited<ReturnType<typeof analyzeSource>>;
+      readonly runtimeMs: number;
+    }
+  | undefined
+> {
   const editor = vscode.window.activeTextEditor;
 
   if (editor) {
@@ -71,7 +64,16 @@ async function analyzeSelectedFile(
       return undefined;
     }
 
-    return analyzeSource(code, editor.document.uri.fsPath, languageResult.language);
+    const language = languageResult.language;
+
+    const measured = await measureRuntimeAsync(async () =>
+      analyzeSource(code, editor.document.uri.fsPath, language)
+    );
+
+    return {
+      analysis: await analyzeSource(code, editor.document.uri.fsPath, languageResult.language),
+      runtimeMs: measured.report.averageRuntimeMs,
+    };
   }
 
   const workspaceContext = await workspaceContextService.getWorkspaceContext();
@@ -102,7 +104,16 @@ async function analyzeSelectedFile(
       return undefined;
     }
 
-    return await analyzeSource(code, document.uri.fsPath, languageResult.language);
+    const language = languageResult.language;
+
+    const measured = await measureRuntimeAsync(async () =>
+      analyzeSource(code, document.uri.fsPath, language)
+    );
+
+    return {
+      analysis: await analyzeSource(code, document.uri.fsPath, language),
+      runtimeMs: measured.report.averageRuntimeMs,
+    };
   } catch {
     return undefined;
   }
@@ -112,16 +123,22 @@ function getAnalysisHistory(storage: StorageService): readonly {
   readonly analyzedAt: number;
   readonly filePath: string;
   readonly complexity: number;
+  readonly runtimeMs: number;
 }[] {
   return storage
     .list("history")
     .map((record) => {
       try {
-        const analysis = JSON.parse(record.value) as Awaited<ReturnType<typeof analyzeSource>>;
+        const stored = JSON.parse(record.value) as {
+          readonly analysis: Awaited<ReturnType<typeof analyzeSource>>;
+          readonly runtimeMs: number;
+        };
+
         return {
-          analyzedAt: analysis.analyzedAt,
-          filePath: analysis.filePath,
-          complexity: analysis.fileCyclomaticComplexity,
+          analyzedAt: stored.analysis.analyzedAt,
+          filePath: stored.analysis.filePath,
+          complexity: stored.analysis.fileCyclomaticComplexity,
+          runtimeMs: stored.runtimeMs,
         };
       } catch {
         return undefined;
@@ -138,20 +155,20 @@ async function refreshDashboard(
   storage: StorageService
 ): Promise<void> {
   await sendWorkspaceContext(panel, workspaceContextService);
-  const analysisResult = await analyzeSelectedFile(workspaceContextService);
+  const result = await analyzeSelectedFile(workspaceContextService);
 
-  if (analysisResult) {
+  if (result) {
     const analysisMessage: ExtensionMessage = {
       type: "algolens.analysisResult",
-      payload: analysisResult,
+      payload: result.analysis,
     };
 
     await panel.webview.postMessage(analysisMessage);
 
     storage.save(
       "history",
-      `${analysisResult.filePath}:${String(analysisResult.analyzedAt)}`,
-      JSON.stringify(analysisResult)
+      `${result.analysis.filePath}:${String(result.analysis.analyzedAt)}`,
+      JSON.stringify(result)
     );
   }
 
@@ -161,6 +178,20 @@ async function refreshDashboard(
   };
 
   await panel.webview.postMessage(historyMessage);
+}
+
+async function sendWorkspaceContext(
+  panel: vscode.WebviewPanel,
+  workspaceContextService: VsCodeWorkspaceContextService
+): Promise<void> {
+  const workspaceContext = await workspaceContextService.getWorkspaceContext();
+
+  const message: ExtensionMessage = {
+    type: "algolens.workspaceContext",
+    payload: workspaceContext,
+  };
+
+  await panel.webview.postMessage(message);
 }
 
 function createDashboardPanel(

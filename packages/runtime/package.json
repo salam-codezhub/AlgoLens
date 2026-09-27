@@ -9,5 +9,8 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@algolens/benchmark": "^0.1.0"
   }
 }
