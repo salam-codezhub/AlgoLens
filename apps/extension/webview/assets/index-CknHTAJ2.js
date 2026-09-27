@@ -39132,7 +39132,12 @@ function IU(e) {
 }
 function LU(e) {
   return [
-    { id: `runtime-trend`, title: `Runtime Trend`, unit: `ms`, points: [] },
+    {
+      id: `runtime-trend`,
+      title: `Runtime Trend`,
+      unit: `ms`,
+      points: e.map((e) => ({ label: IU(e.analyzedAt), value: e.runtimeMs })),
+    },
     { id: `memory-trend`, title: `Memory Trend`, unit: `MB`, points: [] },
     {
       id: `complexity-trend`,
