@@ -4,3 +4,4 @@ export const PACKAGE_NAME = "@algolens/storage" as const;
 export * from "./types.js";
 export * from "./database.js";
 export * from "./storage-service.js";
+export * from "./memory-service.js";
