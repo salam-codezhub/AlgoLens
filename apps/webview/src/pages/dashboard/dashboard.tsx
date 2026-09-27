@@ -1,4 +1,4 @@
-﻿import type { ReactElement } from "react";
+import type { ReactElement } from "react";
 import { DashboardHeader } from "./dashboard-header.js";
 import { MetricCard } from "./metric-card.js";
 import { TrendChart } from "./trend-chart.js";
@@ -101,7 +101,15 @@ function buildHistoryCharts(
   history: ReturnType<typeof useAnalysisHistory>
 ): readonly TrendChartData[] {
   return [
-    { id: "runtime-trend", title: "Runtime Trend", unit: "ms", points: [] },
+    {
+      id: "runtime-trend",
+      title: "Runtime Trend",
+      unit: "ms",
+      points: history.map((entry) => ({
+        label: formatHistoryLabel(entry.analyzedAt),
+        value: entry.runtimeMs,
+      })),
+    },
     { id: "memory-trend", title: "Memory Trend", unit: "MB", points: [] },
     {
       id: "complexity-trend",

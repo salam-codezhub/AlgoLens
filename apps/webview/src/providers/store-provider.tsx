@@ -1,4 +1,4 @@
-﻿import {
+import {
   createContext,
   useContext,
   useEffect,
@@ -31,6 +31,7 @@ interface AnalysisHistoryMessage {
     readonly analyzedAt: number;
     readonly filePath: string;
     readonly complexity: number;
+    readonly runtimeMs: number;
   }[];
 }
 
@@ -43,6 +44,7 @@ export interface AnalysisHistoryState {
     readonly analyzedAt: number;
     readonly filePath: string;
     readonly complexity: number;
+    readonly runtimeMs: number;
   }[];
 }
 
@@ -62,7 +64,7 @@ function toProjectContext(context: WorkspaceContext): ProjectContext {
 }
 
 const DEFAULT_PROJECT_CONTEXT: ProjectContext = {
-  projectName: "Loadingâ€¦",
+  projectName: "LoadingÃ¢â‚¬Â¦",
   currentFile: "No file selected",
   language: "Unknown",
   scanStatus: "idle",
