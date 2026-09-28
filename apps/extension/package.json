@@ -29,6 +29,12 @@
     "Visualization"
   ],
   "main": "dist/extension.js",
+  "activationEvents": [
+    "onCommand:algolens.showInfo",
+    "onCommand:algolens.showWorkspaceContext",
+    "onCommand:algolens.showDashboard",
+    "onCommand:algolens.showMemory"
+  ],
   "icon": "icon.png",
   "files": [
     "dist/**",
@@ -51,6 +57,10 @@
       {
         "command": "algolens.showDashboard",
         "title": "AlgoLens: Show Dashboard"
+      },
+      {
+        "command": "algolens.showMemory",
+        "title": "AlgoLens: Show Memory"
       }
     ]
   },
@@ -60,7 +70,8 @@
     "@algolens/parser": "^0.1.0",
     "@algolens/runtime": "^0.1.0",
     "@algolens/shared": "^0.1.0",
-    "@algolens/storage": "^0.1.0"
+    "@algolens/storage": "^0.1.0",
+    "better-sqlite3": "^13.0.3"
   },
   "scripts": {
     "build": "webpack --config webpack.config.cjs --mode production && node copy-webview.cjs",

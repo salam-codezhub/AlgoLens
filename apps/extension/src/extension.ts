@@ -7,7 +7,7 @@ import { measureRuntimeAsync } from "@algolens/runtime";
 import type { ServiceResponse } from "@algolens/shared";
 import { VsCodeWorkspaceContextService } from "./workspace-context-service.js";
 import { detectLanguage } from "@algolens/parser";
-import { createDatabase, StorageService } from "@algolens/storage";
+import { createDatabase, MemoryService, StorageService } from "@algolens/storage";
 
 export const PACKAGE_NAME = "@algolens/extension" as const;
 
@@ -280,6 +280,7 @@ export function activate(context: vscode.ExtensionContext): void {
     databasePath: path.join(storageDirectory, "history.db"),
   });
   const storage = new StorageService(database);
+  const memory = new MemoryService(storage);
 
   const showWorkspaceContextCommand = vscode.commands.registerCommand(
     SHOW_WORKSPACE_CONTEXT_COMMAND_ID,
@@ -296,6 +297,15 @@ export function activate(context: vscode.ExtensionContext): void {
     createDashboardPanel(context, workspaceContextService, storage);
   });
 
+  const showMemoryCommand = vscode.commands.registerCommand("algolens.showMemory", () => {
+    const entries = memory.list();
+    const summary =
+      entries.length === 0
+        ? "AlgoLens Memory is empty."
+        : entries.map((entry) => `${entry.key}: ${entry.content}`).join(" | ");
+    void vscode.window.showInformationMessage(summary);
+  });
+
   const saveListener = vscode.workspace.onDidSaveTextDocument(() => {
     if (activeDashboardPanel) {
       void refreshDashboard(activeDashboardPanel, workspaceContextService, storage);
@@ -306,6 +316,7 @@ export function activate(context: vscode.ExtensionContext): void {
     showInfoCommand,
     showWorkspaceContextCommand,
     showDashboardCommand,
+    showMemoryCommand,
     saveListener
   );
 }
