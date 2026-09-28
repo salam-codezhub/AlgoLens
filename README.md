@@ -1,10 +1,10 @@
-# AlgoLens
+﻿# AlgoLens
 
 **Analyze. Optimize. Accelerate.**
 
 AlgoLens is a Visual Studio Code extension focused on helping developers understand and improve their code through analysis, performance insights, security checks, optimization guidance, and documentation workflows.
 
-> **Status:** Early development / pre-release
+> **Status:** Pre-release — actively developed and improving
 
 ## What is AlgoLens?
 
@@ -24,16 +24,55 @@ The project includes:
 
 ## Current Extension
 
-The current VS Code extension provides the foundation for the AlgoLens extension host and workspace integration.
+The current VS Code extension provides the AlgoLens dashboard, workspace integration, analysis history, runtime insights, and local developer memory.
 
 Available commands include:
 
-- **AlgoLens: Show Extension Info** — displays extension and dependency information.
+- **AlgoLens: Show Extension Info** - displays extension and dependency information.
 - **AlgoLens: Show Workspace Context** — displays the workspace context available to AlgoLens.
+- **AlgoLens: Show Dashboard** — opens the AlgoLens code intelligence dashboard.
+- **AlgoLens: Show Memory** — views locally stored AlgoLens memory entries.
 
 Additional analysis and AI capabilities are being integrated progressively.
 
+## Features
+
+### Code Intelligence
+
+- Static code analysis and complexity insights
+- Runtime estimation and measured benchmarking
+- Memory analysis and performance trends
+- Bug and code-smell detection
+- Security analysis and developer-focused findings
+
+### Developer Workflow
+
+- Interactive AlgoLens dashboard inside VS Code
+- Automatic analysis refresh on save
+- Local analysis history and trend data
+- Runtime benchmark history
+- Local developer memory for persistent context
+- Reports and documentation workflows
+
+### Optimization & AI
+
+- AI-assisted optimization workflow
+- Optimization guidance based on analysis results
+- Documentation generation
+- Visualization of analysis and performance insights
+
+### VS Code Integration
+
+- Workspace-aware analysis
+- Command Palette integration
+- Local-first storage
+- Designed to work directly inside the developer workflow
+
 ## Installation
+
+### From Marketplace
+
+Search for **AlgoLens Code Intelligence** in the VS Code Marketplace and install the extension.
 
 ### From Source
 
