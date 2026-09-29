@@ -14,6 +14,7 @@ export const PACKAGE_NAME = "@algolens/extension" as const;
 const SHOW_INFO_COMMAND_ID = "algolens.showInfo";
 const SHOW_WORKSPACE_CONTEXT_COMMAND_ID = "algolens.showWorkspaceContext";
 const SHOW_DASHBOARD_COMMAND_ID = "algolens.showDashboard";
+const ANALYZE_CURRENT_FILE_COMMAND_ID = "algolens.analyzeCurrentFile";
 let activeDashboardPanel: vscode.WebviewPanel | undefined;
 
 type WebviewMessage =
@@ -297,6 +298,27 @@ export function activate(context: vscode.ExtensionContext): void {
     createDashboardPanel(context, workspaceContextService, storage);
   });
 
+  const analyzeCurrentFileCommand = vscode.commands.registerCommand(
+    ANALYZE_CURRENT_FILE_COMMAND_ID,
+    async () => {
+      const result = await analyzeSelectedFile(workspaceContextService);
+
+      if (!result) {
+        void vscode.window.showWarningMessage("AlgoLens could not analyze the current file.");
+        return;
+      }
+
+      storage.save(
+        "history",
+        `${result.analysis.filePath}:${String(result.analysis.analyzedAt)}`,
+        JSON.stringify(result)
+      );
+
+      void vscode.window.showInformationMessage(
+        `Analysis complete: complexity ${String(result.analysis.fileCyclomaticComplexity)} | runtime ${result.runtimeMs.toFixed(2)} ms`
+      );
+    }
+  );
   const showMemoryCommand = vscode.commands.registerCommand("algolens.showMemory", () => {
     const entries = memory.list();
     const summary =
@@ -317,6 +339,7 @@ export function activate(context: vscode.ExtensionContext): void {
     showWorkspaceContextCommand,
     showDashboardCommand,
     showMemoryCommand,
+    analyzeCurrentFileCommand,
     saveListener
   );
 }
