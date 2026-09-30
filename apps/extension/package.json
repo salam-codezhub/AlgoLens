@@ -34,6 +34,7 @@
     "onCommand:algolens.showWorkspaceContext",
     "onCommand:algolens.showDashboard",
     "onCommand:algolens.showMemory",
+    "onCommand:algolens.rememberMemory",
     "onCommand:algolens.analyzeCurrentFile"
   ],
   "icon": "icon.png",
@@ -62,6 +63,10 @@
       {
         "command": "algolens.showMemory",
         "title": "AlgoLens: Show Memory"
+      },
+      {
+        "command": "algolens.rememberMemory",
+        "title": "AlgoLens: Remember Memory"
       },
       {
         "command": "algolens.analyzeCurrentFile",

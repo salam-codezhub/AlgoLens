@@ -15,6 +15,7 @@ const SHOW_INFO_COMMAND_ID = "algolens.showInfo";
 const SHOW_WORKSPACE_CONTEXT_COMMAND_ID = "algolens.showWorkspaceContext";
 const SHOW_DASHBOARD_COMMAND_ID = "algolens.showDashboard";
 const ANALYZE_CURRENT_FILE_COMMAND_ID = "algolens.analyzeCurrentFile";
+const REMEMBER_MEMORY_COMMAND_ID = "algolens.rememberMemory";
 let activeDashboardPanel: vscode.WebviewPanel | undefined;
 
 type WebviewMessage =
@@ -324,6 +325,34 @@ export function activate(context: vscode.ExtensionContext): void {
       );
     }
   );
+  const rememberMemoryCommand = vscode.commands.registerCommand(
+    REMEMBER_MEMORY_COMMAND_ID,
+    async () => {
+      const key = await vscode.window.showInputBox({
+        prompt: "Memory key",
+        placeHolder: "e.g. preferred-language",
+        validateInput: (value) => (value.trim() ? undefined : "Memory key is required."),
+      });
+
+      if (!key) {
+        return;
+      }
+
+      const content = await vscode.window.showInputBox({
+        prompt: "Memory content",
+        placeHolder: "e.g. Prefer TypeScript for new code",
+        validateInput: (value) => (value.trim() ? undefined : "Memory content is required."),
+      });
+
+      if (!content) {
+        return;
+      }
+
+      memory.remember(key.trim(), content.trim());
+      void vscode.window.showInformationMessage(`AlgoLens memory saved: ${key.trim()}`);
+    }
+  );
+
   const showMemoryCommand = vscode.commands.registerCommand("algolens.showMemory", () => {
     const entries = memory.list();
     const summary =
@@ -344,6 +373,7 @@ export function activate(context: vscode.ExtensionContext): void {
     showWorkspaceContextCommand,
     showDashboardCommand,
     showMemoryCommand,
+    rememberMemoryCommand,
     analyzeCurrentFileCommand,
     saveListener
   );
