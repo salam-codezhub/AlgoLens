@@ -153,10 +153,11 @@ function getAnalysisHistory(storage: StorageService): readonly {
 async function refreshDashboard(
   panel: vscode.WebviewPanel,
   workspaceContextService: VsCodeWorkspaceContextService,
-  storage: StorageService
+  storage: StorageService,
+  existingResult?: Awaited<ReturnType<typeof analyzeSelectedFile>>
 ): Promise<void> {
   await sendWorkspaceContext(panel, workspaceContextService);
-  const result = await analyzeSelectedFile(workspaceContextService);
+  const result = existingResult ?? (await analyzeSelectedFile(workspaceContextService));
 
   if (result) {
     const analysisMessage: ExtensionMessage = {
@@ -313,6 +314,10 @@ export function activate(context: vscode.ExtensionContext): void {
         `${result.analysis.filePath}:${String(result.analysis.analyzedAt)}`,
         JSON.stringify(result)
       );
+
+      if (activeDashboardPanel) {
+        await refreshDashboard(activeDashboardPanel, workspaceContextService, storage, result);
+      }
 
       void vscode.window.showInformationMessage(
         `Analysis complete: complexity ${String(result.analysis.fileCyclomaticComplexity)} | runtime ${result.runtimeMs.toFixed(2)} ms`
