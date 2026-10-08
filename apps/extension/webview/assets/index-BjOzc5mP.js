@@ -18505,7 +18505,7 @@ function Jc(e) {
   };
 }
 var Yc = {
-    projectName: `Loadingâ€¦`,
+    projectName: `LoadingÃ¢â‚¬Â¦`,
     currentFile: `No file selected`,
     language: `Unknown`,
     scanStatus: `idle`,
@@ -38950,65 +38950,73 @@ function MU({ data: e }) {
       }),
       (0, B.jsx)(Wo, {
         className: `h-48`,
-        children: (0, B.jsx)(X_, {
-          width: `100%`,
-          height: `100%`,
-          children: (0, B.jsxs)(jU, {
-            data: e.points,
-            children: [
-              (0, B.jsx)(`defs`, {
-                children: (0, B.jsxs)(`linearGradient`, {
-                  id: `gradient-${e.id}`,
-                  x1: `0`,
-                  y1: `0`,
-                  x2: `0`,
-                  y2: `1`,
+        children:
+          e.points.length === 0
+            ? (0, B.jsx)(`div`, {
+                className: `flex h-full items-center justify-center px-4 text-center text-sm text-muted-foreground`,
+                role: `status`,
+                "data-testid": `trend-chart-empty-${e.id}`,
+                children: e.emptyMessage ?? `No historical data available yet.`,
+              })
+            : (0, B.jsx)(X_, {
+                width: `100%`,
+                height: `100%`,
+                children: (0, B.jsxs)(jU, {
+                  data: e.points,
                   children: [
-                    (0, B.jsx)(`stop`, {
-                      offset: `5%`,
-                      stopColor: `var(--color-primary)`,
-                      stopOpacity: 0.35,
+                    (0, B.jsx)(`defs`, {
+                      children: (0, B.jsxs)(`linearGradient`, {
+                        id: `gradient-${e.id}`,
+                        x1: `0`,
+                        y1: `0`,
+                        x2: `0`,
+                        y2: `1`,
+                        children: [
+                          (0, B.jsx)(`stop`, {
+                            offset: `5%`,
+                            stopColor: `var(--color-primary)`,
+                            stopOpacity: 0.35,
+                          }),
+                          (0, B.jsx)(`stop`, {
+                            offset: `95%`,
+                            stopColor: `var(--color-primary)`,
+                            stopOpacity: 0,
+                          }),
+                        ],
+                      }),
                     }),
-                    (0, B.jsx)(`stop`, {
-                      offset: `95%`,
-                      stopColor: `var(--color-primary)`,
-                      stopOpacity: 0,
+                    (0, B.jsx)(oB, { strokeDasharray: `3 3`, stroke: `var(--color-border)` }),
+                    (0, B.jsx)(TV, {
+                      dataKey: `label`,
+                      stroke: `var(--color-muted-foreground)`,
+                      fontSize: 12,
+                      tickLine: !1,
+                    }),
+                    (0, B.jsx)(BV, {
+                      stroke: `var(--color-muted-foreground)`,
+                      fontSize: 12,
+                      tickLine: !1,
+                      width: 40,
+                      unit: ` ${e.unit}`,
+                    }),
+                    (0, B.jsx)(LP, {
+                      contentStyle: {
+                        backgroundColor: `var(--color-surface)`,
+                        border: `1px solid var(--color-border)`,
+                        borderRadius: `0.5rem`,
+                        fontSize: `0.75rem`,
+                      },
+                    }),
+                    (0, B.jsx)(iV, {
+                      type: `monotone`,
+                      dataKey: `value`,
+                      stroke: `var(--color-primary)`,
+                      fill: `url(#gradient-${e.id})`,
+                      strokeWidth: 2,
                     }),
                   ],
                 }),
               }),
-              (0, B.jsx)(oB, { strokeDasharray: `3 3`, stroke: `var(--color-border)` }),
-              (0, B.jsx)(TV, {
-                dataKey: `label`,
-                stroke: `var(--color-muted-foreground)`,
-                fontSize: 12,
-                tickLine: !1,
-              }),
-              (0, B.jsx)(BV, {
-                stroke: `var(--color-muted-foreground)`,
-                fontSize: 12,
-                tickLine: !1,
-                width: 40,
-                unit: ` ${e.unit}`,
-              }),
-              (0, B.jsx)(LP, {
-                contentStyle: {
-                  backgroundColor: `var(--color-surface)`,
-                  border: `1px solid var(--color-border)`,
-                  borderRadius: `0.5rem`,
-                  fontSize: `0.75rem`,
-                },
-              }),
-              (0, B.jsx)(iV, {
-                type: `monotone`,
-                dataKey: `value`,
-                stroke: `var(--color-primary)`,
-                fill: `url(#gradient-${e.id})`,
-                strokeWidth: 2,
-              }),
-            ],
-          }),
-        }),
       }),
     ],
   });
@@ -39138,7 +39146,13 @@ function LU(e) {
       unit: `ms`,
       points: e.map((e) => ({ label: IU(e.analyzedAt), value: e.runtimeMs })),
     },
-    { id: `memory-trend`, title: `Memory Trend`, unit: `MB`, points: [] },
+    {
+      id: `memory-trend`,
+      title: `Memory Trend`,
+      unit: `MB`,
+      points: [],
+      emptyMessage: `Memory usage measurements are not recorded yet.`,
+    },
     {
       id: `complexity-trend`,
       title: `Complexity Trend`,

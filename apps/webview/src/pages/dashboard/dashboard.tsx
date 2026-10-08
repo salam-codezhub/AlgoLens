@@ -110,7 +110,13 @@ function buildHistoryCharts(
         value: entry.runtimeMs,
       })),
     },
-    { id: "memory-trend", title: "Memory Trend", unit: "MB", points: [] },
+    {
+      id: "memory-trend",
+      title: "Memory Trend",
+      unit: "MB",
+      points: [],
+      emptyMessage: "Memory usage measurements are not recorded yet.",
+    },
     {
       id: "complexity-trend",
       title: "Complexity Trend",

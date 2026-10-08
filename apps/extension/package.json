@@ -35,7 +35,9 @@
     "onCommand:algolens.showDashboard",
     "onCommand:algolens.showMemory",
     "onCommand:algolens.rememberMemory",
-    "onCommand:algolens.analyzeCurrentFile"
+    "onCommand:algolens.analyzeCurrentFile",
+    "onCommand:algolens.analyzeSecurity",
+    "onCommand:algolens.suggestOptimizations"
   ],
   "icon": "icon.png",
   "files": [
@@ -71,11 +73,21 @@
       {
         "command": "algolens.analyzeCurrentFile",
         "title": "AlgoLens: Analyze Current File"
+      },
+      {
+        "command": "algolens.analyzeSecurity",
+        "title": "AlgoLens: Analyze Security"
+      },
+      {
+        "command": "algolens.suggestOptimizations",
+        "title": "AlgoLens: Suggest Optimizations"
       }
     ]
   },
   "dependencies": {
     "@algolens/analyzer": "^0.1.0",
+    "@algolens/optimizer": "^0.1.0",
+    "@algolens/security": "^0.1.0",
     "@algolens/core": "^0.1.0",
     "@algolens/parser": "^0.1.0",
     "@algolens/runtime": "^0.1.0",

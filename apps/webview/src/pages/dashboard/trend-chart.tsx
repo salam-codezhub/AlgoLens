@@ -26,45 +26,55 @@ export function TrendChart({ data }: { readonly data: TrendChartData }): ReactEl
         <CardTitle className="text-sm font-medium">{data.title}</CardTitle>
       </CardHeader>
       <CardContent className="h-48">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data.points as unknown as Record<string, unknown>[]}>
-            <defs>
-              <linearGradient id={`gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-            <XAxis
-              dataKey="label"
-              stroke="var(--color-muted-foreground)"
-              fontSize={12}
-              tickLine={false}
-            />
-            <YAxis
-              stroke="var(--color-muted-foreground)"
-              fontSize={12}
-              tickLine={false}
-              width={40}
-              unit={` ${data.unit}`}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "0.5rem",
-                fontSize: "0.75rem",
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="var(--color-primary)"
-              fill={`url(#gradient-${data.id})`}
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        {data.points.length === 0 ? (
+          <div
+            className="flex h-full items-center justify-center px-4 text-center text-sm text-muted-foreground"
+            role="status"
+            data-testid={`trend-chart-empty-${data.id}`}
+          >
+            {data.emptyMessage ?? "No historical data available yet."}
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data.points as unknown as Record<string, unknown>[]}>
+              <defs>
+                <linearGradient id={`gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+              <XAxis
+                dataKey="label"
+                stroke="var(--color-muted-foreground)"
+                fontSize={12}
+                tickLine={false}
+              />
+              <YAxis
+                stroke="var(--color-muted-foreground)"
+                fontSize={12}
+                tickLine={false}
+                width={40}
+                unit={` ${data.unit}`}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "0.5rem",
+                  fontSize: "0.75rem",
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="var(--color-primary)"
+                fill={`url(#gradient-${data.id})`}
+                strokeWidth={2}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );

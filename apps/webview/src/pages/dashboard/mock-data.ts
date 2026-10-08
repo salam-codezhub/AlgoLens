@@ -58,6 +58,7 @@ export interface TrendChartData {
   readonly title: string;
   readonly unit: string;
   readonly points: readonly TrendPoint[];
+  readonly emptyMessage?: string;
 }
 
 export const MOCK_TREND_CHARTS: readonly TrendChartData[] = [

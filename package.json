@@ -28,7 +28,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run test --workspaces --if-present",
+    "test": "vitest run",
     "dev:extension": "npm run dev --workspace apps/extension",
     "dev:webview": "npm run dev --workspace apps/webview",
     "clean": "npm run clean --workspaces --if-present",

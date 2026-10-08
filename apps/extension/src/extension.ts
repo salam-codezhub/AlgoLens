@@ -3,6 +3,8 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { PACKAGE_NAME as CORE_PACKAGE_NAME, ok } from "@algolens/core";
 import { analyzeSource } from "@algolens/analyzer";
+import { optimizeCode } from "@algolens/optimizer";
+import { analyzeSecurity } from "@algolens/security";
 import { measureRuntimeAsync } from "@algolens/runtime";
 import type { ServiceResponse } from "@algolens/shared";
 import { VsCodeWorkspaceContextService } from "./workspace-context-service.js";
@@ -15,6 +17,8 @@ const SHOW_INFO_COMMAND_ID = "algolens.showInfo";
 const SHOW_WORKSPACE_CONTEXT_COMMAND_ID = "algolens.showWorkspaceContext";
 const SHOW_DASHBOARD_COMMAND_ID = "algolens.showDashboard";
 const ANALYZE_CURRENT_FILE_COMMAND_ID = "algolens.analyzeCurrentFile";
+const ANALYZE_SECURITY_COMMAND_ID = "algolens.analyzeSecurity";
+const SUGGEST_OPTIMIZATIONS_COMMAND_ID = "algolens.suggestOptimizations";
 const REMEMBER_MEMORY_COMMAND_ID = "algolens.rememberMemory";
 let activeDashboardPanel: vscode.WebviewPanel | undefined;
 
@@ -215,6 +219,12 @@ function createDashboardPanel(
 
   activeDashboardPanel = panel;
 
+  panel.onDidDispose(() => {
+    if (activeDashboardPanel === panel) {
+      activeDashboardPanel = undefined;
+    }
+  });
+
   const webviewRoot = vscode.Uri.joinPath(context.extensionUri, "webview");
   const indexPath = path.join(webviewRoot.fsPath, "index.html");
 
@@ -266,6 +276,97 @@ function createDashboardPanel(
   return panel;
 }
 
+async function showMarkdownReport(content: string): Promise<void> {
+  const document = await vscode.workspace.openTextDocument({ language: "markdown", content });
+  await vscode.window.showTextDocument(document, { preview: true });
+}
+
+function formatSecurityReport(
+  fileName: string,
+  report: ReturnType<typeof analyzeSecurity>
+): string {
+  const lines = [
+    "# AlgoLens Security Report",
+    "",
+    `- **File:** \`${fileName}\``,
+    `- **Findings:** ${String(report.issueCount)}`,
+    `- **Critical:** ${String(report.criticalCount)} | **High:** ${String(report.highCount)} | **Medium:** ${String(report.mediumCount)} | **Low:** ${String(report.lowCount)}`,
+    `- **Average finding confidence:** ${String(report.confidence)}%`,
+    "",
+    "> This heuristic scan can miss vulnerabilities and produce false positives. It is not a substitute for a complete security review.",
+    "",
+  ];
+
+  if (report.issues.length === 0) {
+    lines.push("No issues were detected by the current security rules.");
+  } else {
+    for (const issue of report.issues) {
+      const location = issue.line === undefined ? "" : ` (line ${String(issue.line)})`;
+      lines.push(
+        `## ${issue.severity.toUpperCase()}: ${issue.type}${location}`,
+        "",
+        issue.message,
+        "",
+        `Confidence: ${String(issue.confidence)}%`,
+        ""
+      );
+    }
+  }
+  return lines.join("\n");
+}
+
+function formatOptimizationReport(
+  fileName: string,
+  report: ReturnType<typeof optimizeCode>
+): string {
+  const lines = [
+    "# AlgoLens Optimization Suggestions",
+    "",
+    `- **File:** \`${fileName}\``,
+    `- **Suggestions:** ${String(report.suggestions.length)}`,
+    `- **Overall confidence:** ${String(report.confidence)}%`,
+    `- **Overall risk:** ${report.risk}`,
+    "",
+    report.explanation,
+    "",
+  ];
+
+  if (report.suggestions.length === 0) {
+    lines.push("No optimization opportunities were identified by the current heuristics.", "");
+  } else {
+    for (const suggestion of report.suggestions) {
+      lines.push(
+        `## ${suggestion.title}`,
+        "",
+        `- **Category:** ${suggestion.type}`,
+        `- **Risk:** ${suggestion.risk}`,
+        `- **Confidence:** ${String(suggestion.confidence)}%`,
+        "",
+        suggestion.description,
+        "",
+        `**Why consider this:** ${suggestion.rationale}`,
+        ""
+      );
+    }
+  }
+
+  if (report.tradeOffs.length > 0) {
+    lines.push("## Trade-offs to review", "");
+    for (const tradeOff of report.tradeOffs) lines.push(`- ${tradeOff}`);
+    lines.push("");
+  }
+
+  lines.push(
+    "## Patch status",
+    "",
+    report.diff.before === report.diff.after
+      ? "No code changes were generated. These are advisory suggestions only; the source file was not modified and no proposed patch is available to diff."
+      : "A candidate change is available for review. The source file has not been modified.",
+    ""
+  );
+  return lines.join("\n");
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   const showInfoCommand = vscode.commands.registerCommand(SHOW_INFO_COMMAND_ID, () => {
     const dependency = corePackageDependency();
@@ -297,6 +398,11 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   const showDashboardCommand = vscode.commands.registerCommand(SHOW_DASHBOARD_COMMAND_ID, () => {
+    if (activeDashboardPanel) {
+      activeDashboardPanel.reveal(vscode.ViewColumn.One);
+      return;
+    }
+
     createDashboardPanel(context, workspaceContextService, storage);
   });
 
@@ -325,6 +431,52 @@ export function activate(context: vscode.ExtensionContext): void {
       );
     }
   );
+  const analyzeSecurityCommand = vscode.commands.registerCommand(
+    ANALYZE_SECURITY_COMMAND_ID,
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        void vscode.window.showWarningMessage(
+          "Open a source file before running AlgoLens security analysis."
+        );
+        return;
+      }
+      const report = analyzeSecurity(editor.document.getText());
+      const fileName = path.basename(editor.document.uri.fsPath) || editor.document.uri.toString();
+      await showMarkdownReport(formatSecurityReport(fileName, report));
+    }
+  );
+
+  const suggestOptimizationsCommand = vscode.commands.registerCommand(
+    SUGGEST_OPTIMIZATIONS_COMMAND_ID,
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        void vscode.window.showWarningMessage(
+          "Open a source file before requesting AlgoLens optimization suggestions."
+        );
+        return;
+      }
+      const report = optimizeCode(editor.document.getText());
+      const fileName = path.basename(editor.document.uri.fsPath) || editor.document.uri.toString();
+
+      if (report.diff.before !== report.diff.after) {
+        const candidate = await vscode.workspace.openTextDocument({
+          language: editor.document.languageId,
+          content: report.optimizedCode,
+        });
+        await vscode.commands.executeCommand(
+          "vscode.diff",
+          editor.document.uri,
+          candidate.uri,
+          `Review AlgoLens optimization: ${fileName}`
+        );
+        return;
+      }
+      await showMarkdownReport(formatOptimizationReport(fileName, report));
+    }
+  );
+
   const rememberMemoryCommand = vscode.commands.registerCommand(
     REMEMBER_MEMORY_COMMAND_ID,
     async () => {
@@ -375,6 +527,8 @@ export function activate(context: vscode.ExtensionContext): void {
     showMemoryCommand,
     rememberMemoryCommand,
     analyzeCurrentFileCommand,
+    analyzeSecurityCommand,
+    suggestOptimizationsCommand,
     saveListener
   );
 }

@@ -26,6 +26,7 @@ export default tseslint.config(
       "**/node_modules/**",
       "**/*.d.ts",
       "**/coverage/**",
+      "**/.vsix-staging/**",
       "**/.turbo/**",
       "**/*.tsbuildinfo",
     ],
