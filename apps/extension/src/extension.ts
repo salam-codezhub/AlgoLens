@@ -10,6 +10,11 @@ import type { ServiceResponse } from "@algolens/shared";
 import { VsCodeWorkspaceContextService } from "./workspace-context-service.js";
 import { detectLanguage } from "@algolens/parser";
 import { createDatabase, MemoryService, StorageService } from "@algolens/storage";
+import {
+  AI_PROVIDER_SECRET_PREFIX,
+  presentExplainOutcome,
+  runExplainCommand,
+} from "./code-explainer.js";
 
 export const PACKAGE_NAME = "@algolens/extension" as const;
 
@@ -19,13 +24,20 @@ const SHOW_DASHBOARD_COMMAND_ID = "algolens.showDashboard";
 const ANALYZE_CURRENT_FILE_COMMAND_ID = "algolens.analyzeCurrentFile";
 const ANALYZE_SECURITY_COMMAND_ID = "algolens.analyzeSecurity";
 const SUGGEST_OPTIMIZATIONS_COMMAND_ID = "algolens.suggestOptimizations";
+const EXPLAIN_CODE_COMMAND_ID = "algolens.explainCode";
+const RESET_SOURCE_DISCLOSURE_CONSENT_COMMAND_ID = "algolens.resetSourceDisclosureConsent";
 const REMEMBER_MEMORY_COMMAND_ID = "algolens.rememberMemory";
 let activeDashboardPanel: vscode.WebviewPanel | undefined;
+let latestSecurityReport: ReturnType<typeof analyzeSecurity> | undefined;
 
 type WebviewMessage =
   { readonly type: "algolens.ready" } | { readonly type: "algolens.refreshWorkspace" };
 
 type ExtensionMessage =
+  | {
+      readonly type: "algolens.securityReport";
+      readonly payload: ReturnType<typeof analyzeSecurity>;
+    }
   | {
       readonly type: "algolens.workspaceContext";
       readonly payload: Awaited<ReturnType<VsCodeWorkspaceContextService["getWorkspaceContext"]>>;
@@ -187,6 +199,15 @@ async function refreshDashboard(
   await panel.webview.postMessage(historyMessage);
 }
 
+async function sendLatestSecurityReport(panel: vscode.WebviewPanel): Promise<void> {
+  if (!latestSecurityReport) return;
+  const message: ExtensionMessage = {
+    type: "algolens.securityReport",
+    payload: latestSecurityReport,
+  };
+  await panel.webview.postMessage(message);
+}
+
 async function sendWorkspaceContext(
   panel: vscode.WebviewPanel,
   workspaceContextService: VsCodeWorkspaceContextService
@@ -261,6 +282,7 @@ function createDashboardPanel(
     async (message: WebviewMessage) => {
       if (message.type === "algolens.ready") {
         await refreshDashboard(panel, workspaceContextService, storage);
+        await sendLatestSecurityReport(panel);
       }
 
       if (message.type === "algolens.refreshWorkspace") {
@@ -367,7 +389,121 @@ function formatOptimizationReport(
   return lines.join("\n");
 }
 
+async function explainCodeCommand(context: vscode.ExtensionContext): Promise<void> {
+  const controller = new AbortController();
+  const outcome = await runExplainCommand({
+    signal: controller.signal,
+    getEditor: () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) return undefined;
+      return {
+        selection: editor.document.getText(editor.selection),
+        documentText: editor.document.getText(),
+        language: editor.document.languageId,
+        filePath: editor.document.uri.fsPath,
+      };
+    },
+    getProviderSetting: () =>
+      vscode.workspace.getConfiguration("algolens.ai").get<unknown>("provider", "openai"),
+    getModelSetting: () => vscode.workspace.getConfiguration("algolens.ai").get<string>("model"),
+    getApiKey: async (provider) =>
+      await context.secrets.get(`${AI_PROVIDER_SECRET_PREFIX}${provider}`),
+    requestApiKey: async (provider) => {
+      const choice = await vscode.window.showWarningMessage(
+        `No API key is saved for ${provider}. Save a key securely to continue.`,
+        "Save API Key"
+      );
+      if (choice !== "Save API Key") return undefined;
+      return vscode.window.showInputBox({
+        prompt: `API key for ${provider}`,
+        password: true,
+        ignoreFocusOut: true,
+        validateInput: (value) => (value.trim() ? undefined : "API key is required."),
+      });
+    },
+    storeApiKey: async (provider, key) => {
+      await context.secrets.store(`${AI_PROVIDER_SECRET_PREFIX}${provider}`, key);
+    },
+    confirmRemoteDisclosure: async (provider, filePath) => {
+      const consentKey = "algolens.ai.sourceDisclosureAccepted";
+      if (context.workspaceState.get<boolean>(consentKey, false)) return true;
+      const choice = await vscode.window.showWarningMessage(
+        `AlgoLens will send source code and the file path "${filePath}" to the remote ${provider} AI provider for explanation. Only continue if you are allowed to share this code with that provider.`,
+        { modal: true },
+        "Send Code and Continue"
+      );
+      if (choice !== "Send Code and Continue") return false;
+      await context.workspaceState.update(consentKey, true);
+      return true;
+    },
+    resolveInput: (editor, code) => {
+      const languageResult = detectLanguage({
+        vscodeLanguageId: editor.language,
+        filePath: editor.filePath,
+        content: code,
+      });
+      const language =
+        languageResult.language === "unknown" ? editor.language : languageResult.language;
+      const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+      const filePath = workspaceFolder
+        ? path.relative(workspaceFolder.uri.fsPath, editor.filePath).replace(/\\/g, "/")
+        : editor.filePath.replace(/\\/g, "/");
+      return { language, filePath };
+    },
+    explain: async (config, input) =>
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "AlgoLens is explaining code with AI...",
+          cancellable: true,
+        },
+        async (_progress, token) => {
+          const cancellationListener = token.onCancellationRequested(() => {
+            controller.abort();
+          });
+          try {
+            const { explainWithProvider } = await import("./code-explainer.js");
+            return await explainWithProvider(config, input);
+          } finally {
+            cancellationListener.dispose();
+          }
+        }
+      ),
+  });
+  const finalOutcome = controller.signal.aborted ? { kind: "cancelled" as const } : outcome;
+
+  await presentExplainOutcome(finalOutcome, {
+    showWarning: (message) => {
+      void vscode.window.showWarningMessage(message);
+    },
+    showError: (message) => {
+      void vscode.window.showErrorMessage(message);
+    },
+    showReport: async (content) => {
+      await showMarkdownReport(content);
+    },
+  });
+}
 export function activate(context: vscode.ExtensionContext): void {
+  const resetSourceDisclosureConsentCommand = vscode.commands.registerCommand(
+    RESET_SOURCE_DISCLOSURE_CONSENT_COMMAND_ID,
+    async () => {
+      const choice = await vscode.window.showWarningMessage(
+        "Reset the source-sharing consent for this workspace? The next AI code explanation will ask for confirmation again.",
+        { modal: true },
+        "Reset Consent"
+      );
+      if (choice !== "Reset Consent") return;
+      await context.workspaceState.update("algolens.ai.sourceDisclosureAccepted", undefined);
+      void vscode.window.showInformationMessage(
+        "AlgoLens source-sharing consent was reset for this workspace."
+      );
+    }
+  );
+  const explainCodeCommandDisposable = vscode.commands.registerCommand(
+    EXPLAIN_CODE_COMMAND_ID,
+    () => explainCodeCommand(context)
+  );
   const showInfoCommand = vscode.commands.registerCommand(SHOW_INFO_COMMAND_ID, () => {
     const dependency = corePackageDependency();
     const dependencyName = dependency.data ?? "unknown";
@@ -378,14 +514,25 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   const workspaceContextService = new VsCodeWorkspaceContextService();
-  const storageDirectory = context.globalStorageUri.fsPath;
-  fs.mkdirSync(storageDirectory, { recursive: true });
-  const database = createDatabase({
-    databasePath: path.join(storageDirectory, "history.db"),
-  });
-  const storage = new StorageService(database);
-  const memory = new MemoryService(storage);
+  let storage: StorageService | undefined;
+  let memory: MemoryService | undefined;
 
+  try {
+    const storageDirectory = context.globalStorageUri.fsPath;
+    fs.mkdirSync(storageDirectory, { recursive: true });
+    const database = createDatabase({
+      databasePath: path.join(storageDirectory, "history.db"),
+    });
+    storage = new StorageService(database);
+    memory = new MemoryService(storage);
+    context.subscriptions.push({ dispose: () => storage?.close() });
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+    console.error("[AlgoLens] Persistent SQLite storage failed to initialize:", error);
+    void vscode.window.showWarningMessage(
+      `AlgoLens started with persistent history and memory unavailable. SQLite initialization failed: ${details}`
+    );
+  }
   const showWorkspaceContextCommand = vscode.commands.registerCommand(
     SHOW_WORKSPACE_CONTEXT_COMMAND_ID,
     async () => {
@@ -403,6 +550,10 @@ export function activate(context: vscode.ExtensionContext): void {
       return;
     }
 
+    if (!storage) {
+      void vscode.window.showWarningMessage("AlgoLens dashboard requires working SQLite storage.");
+      return;
+    }
     createDashboardPanel(context, workspaceContextService, storage);
   });
 
@@ -416,13 +567,13 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
 
-      storage.save(
+      storage?.save(
         "history",
         `${result.analysis.filePath}:${String(result.analysis.analyzedAt)}`,
         JSON.stringify(result)
       );
 
-      if (activeDashboardPanel) {
+      if (activeDashboardPanel && storage) {
         await refreshDashboard(activeDashboardPanel, workspaceContextService, storage, result);
       }
 
@@ -442,6 +593,8 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
       const report = analyzeSecurity(editor.document.getText());
+      latestSecurityReport = report;
+      if (activeDashboardPanel) await sendLatestSecurityReport(activeDashboardPanel);
       const fileName = path.basename(editor.document.uri.fsPath) || editor.document.uri.toString();
       await showMarkdownReport(formatSecurityReport(fileName, report));
     }
@@ -500,12 +653,24 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
 
+      if (!memory) {
+        void vscode.window.showWarningMessage(
+          "AlgoLens memory is unavailable because SQLite storage failed to initialize."
+        );
+        return;
+      }
       memory.remember(key.trim(), content.trim());
       void vscode.window.showInformationMessage(`AlgoLens memory saved: ${key.trim()}`);
     }
   );
 
   const showMemoryCommand = vscode.commands.registerCommand("algolens.showMemory", () => {
+    if (!memory) {
+      void vscode.window.showWarningMessage(
+        "AlgoLens memory is unavailable because SQLite storage failed to initialize."
+      );
+      return;
+    }
     const entries = memory.list();
     const summary =
       entries.length === 0
@@ -515,12 +680,14 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   const saveListener = vscode.workspace.onDidSaveTextDocument(() => {
-    if (activeDashboardPanel) {
+    if (activeDashboardPanel && storage) {
       void refreshDashboard(activeDashboardPanel, workspaceContextService, storage);
     }
   });
 
   context.subscriptions.push(
+    explainCodeCommandDisposable,
+    resetSourceDisclosureConsentCommand,
     showInfoCommand,
     showWorkspaceContextCommand,
     showDashboardCommand,

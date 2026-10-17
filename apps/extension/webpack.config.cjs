@@ -43,6 +43,7 @@ module.exports = (_env, argv) => {
     externals: {
       // Provided by the VS Code extension host at runtime — never bundle it.
       vscode: "commonjs vscode",
+      "better-sqlite3": "commonjs better-sqlite3",
     },
     resolve: {
       extensions: [".ts", ".js"],

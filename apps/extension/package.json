@@ -37,7 +37,9 @@
     "onCommand:algolens.rememberMemory",
     "onCommand:algolens.analyzeCurrentFile",
     "onCommand:algolens.analyzeSecurity",
-    "onCommand:algolens.suggestOptimizations"
+    "onCommand:algolens.suggestOptimizations",
+    "onCommand:algolens.explainCode",
+    "onCommand:algolens.resetSourceDisclosureConsent"
   ],
   "icon": "icon.png",
   "files": [
@@ -81,8 +83,40 @@
       {
         "command": "algolens.suggestOptimizations",
         "title": "AlgoLens: Suggest Optimizations"
+      },
+      {
+        "command": "algolens.explainCode",
+        "title": "AlgoLens: Explain Code with AI",
+        "category": "AlgoLens"
+      },
+      {
+        "command": "algolens.resetSourceDisclosureConsent",
+        "title": "AlgoLens: Reset Source Disclosure Consent",
+        "category": "AlgoLens"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "AlgoLens AI",
+      "properties": {
+        "algolens.ai.provider": {
+          "type": "string",
+          "default": "openai",
+          "enum": [
+            "openai",
+            "claude",
+            "gemini",
+            "deepseek",
+            "qwen"
+          ],
+          "description": "AI provider used by Explain Code. API keys are stored securely in VS Code SecretStorage."
+        },
+        "algolens.ai.model": {
+          "type": "string",
+          "default": "",
+          "description": "Optional model name override for Explain Code."
+        }
+      }
+    }
   },
   "dependencies": {
     "@algolens/analyzer": "^0.1.0",
@@ -93,10 +127,11 @@
     "@algolens/runtime": "^0.1.0",
     "@algolens/shared": "^0.1.0",
     "@algolens/storage": "^0.1.0",
-    "better-sqlite3": "^13.0.3"
+    "better-sqlite3": "^13.0.3",
+    "@algolens/ai": "^0.1.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.cjs --mode production && node copy-webview.cjs",
+    "build": "webpack --config webpack.config.cjs --mode production \u0026\u0026 node copy-webview.cjs",
     "dev": "webpack --config webpack.config.cjs --mode development --watch",
     "clean": "rimraf dist"
   }

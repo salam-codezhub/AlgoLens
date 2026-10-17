@@ -1,6 +1,11 @@
-import { GoogleGenAI } from "@google/genai";
+import { ApiError, GoogleGenAI } from "@google/genai";
 import { BaseAIProvider } from "../base-provider.js";
-import { AIInvalidResponseError, AINetworkError } from "../errors.js";
+import {
+  AIAuthenticationError,
+  AIInvalidResponseError,
+  AINetworkError,
+  AIRateLimitError,
+} from "../errors.js";
 import type { AIProviderId, ChatRequest, AIResponse, StreamChunk } from "../types.js";
 
 /** Gemini has no separate "system" role — the SDK's `contents` array uses
@@ -91,6 +96,15 @@ export class GeminiProvider extends BaseAIProvider {
   private toProviderError(error: unknown): Error {
     if (error instanceof AIInvalidResponseError) {
       return error;
+    }
+    if (error instanceof ApiError) {
+      if (error.status === 401 || error.status === 403) {
+        return new AIAuthenticationError(this.id, error);
+      }
+      if (error.status === 429) {
+        return new AIRateLimitError(this.id, undefined, error);
+      }
+      return new AINetworkError(this.id, error);
     }
     return new AINetworkError(this.id, error instanceof Error ? error : undefined);
   }

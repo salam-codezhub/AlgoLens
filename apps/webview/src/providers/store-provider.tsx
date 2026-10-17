@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createStore, type ProjectContext, type WorkspaceContext } from "@algolens/core";
 import type { StaticAnalysisResult } from "@algolens/analyzer";
+import type { SecurityReport } from "@algolens/security";
 
 interface VsCodeApi {
   postMessage(message: unknown): void;
@@ -25,6 +26,11 @@ interface AnalysisResultMessage {
   readonly payload: StaticAnalysisResult;
 }
 
+interface SecurityReportMessage {
+  readonly type: "algolens.securityReport";
+  readonly payload: SecurityReport;
+}
+
 interface AnalysisHistoryMessage {
   readonly type: "algolens.analysisHistory";
   readonly payload: readonly {
@@ -33,6 +39,10 @@ interface AnalysisHistoryMessage {
     readonly complexity: number;
     readonly runtimeMs: number;
   }[];
+}
+
+export interface SecurityReportState {
+  readonly report: SecurityReport | undefined;
 }
 
 export interface AnalysisState {
@@ -76,6 +86,8 @@ const AnalysisContext = createContext<AnalysisState>({
   result: undefined,
 });
 
+const SecurityReportContext = createContext<SecurityReportState>({ report: undefined });
+
 const AnalysisHistoryContext = createContext<AnalysisHistoryState>({
   entries: [],
 });
@@ -84,6 +96,9 @@ export function StoreProvider({ children }: { readonly children: ReactNode }): R
   const storeRef = useRef(createStore<ProjectContext>(DEFAULT_PROJECT_CONTEXT));
   const [analysisState, setAnalysisState] = useState<AnalysisState>({
     result: undefined,
+  });
+  const [securityReportState, setSecurityReportState] = useState<SecurityReportState>({
+    report: undefined,
   });
   const [analysisHistoryState, setAnalysisHistoryState] = useState<AnalysisHistoryState>({
     entries: [],
@@ -96,10 +111,20 @@ export function StoreProvider({ children }: { readonly children: ReactNode }): R
     }
 
     const handleMessage = (
-      event: MessageEvent<WorkspaceContextMessage | AnalysisResultMessage | AnalysisHistoryMessage>
+      event: MessageEvent<
+        | WorkspaceContextMessage
+        | AnalysisResultMessage
+        | AnalysisHistoryMessage
+        | SecurityReportMessage
+      >
     ) => {
       if (event.data.type === "algolens.workspaceContext") {
         storeRef.current.setState(toProjectContext(event.data.payload));
+        return;
+      }
+
+      if (event.data.type === "algolens.securityReport") {
+        setSecurityReportState({ report: event.data.payload });
         return;
       }
 
@@ -124,9 +149,11 @@ export function StoreProvider({ children }: { readonly children: ReactNode }): R
   return (
     <StoreContext.Provider value={storeRef.current}>
       <AnalysisContext.Provider value={analysisState}>
-        <AnalysisHistoryContext.Provider value={analysisHistoryState}>
-          {children}
-        </AnalysisHistoryContext.Provider>
+        <SecurityReportContext.Provider value={securityReportState}>
+          <AnalysisHistoryContext.Provider value={analysisHistoryState}>
+            {children}
+          </AnalysisHistoryContext.Provider>
+        </SecurityReportContext.Provider>
       </AnalysisContext.Provider>
     </StoreContext.Provider>
   );
@@ -146,4 +173,9 @@ export function useAnalysisResult(): StaticAnalysisResult | undefined {
 /** Reads persisted static analysis history. */
 export function useAnalysisHistory(): AnalysisHistoryState["entries"] {
   return useContext(AnalysisHistoryContext).entries;
+}
+
+/** Returns the latest security report, or undefined before the first scan. */
+export function useSecurityReport(): SecurityReport | undefined {
+  return useContext(SecurityReportContext).report;
 }

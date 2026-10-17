@@ -98,6 +98,15 @@ export default tseslint.config(
     },
   },
 
+  // Extension tests live outside the extension production tsconfig's src-only scope.
+  // Apply structural linting to these tests without expanding the production build scope.
+  {
+    files: ["apps/extension/src/**/*.test.ts", "apps/extension/tests/**/*.test.ts"],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      parserOptions: { projectService: false },
+    },
+  },
   // Config/build scripts run under Node without full type info â€” relax the
   // type-checked rules there rather than dragging every dotfile into the
   // TypeScript project graph.

@@ -1,4 +1,4 @@
-﻿# AlgoLens Code Intelligence
+# AlgoLens Code Intelligence
 
 **Analyze. Optimize. Accelerate.**
 
@@ -50,6 +50,17 @@ Available commands:
 - **AlgoLens: Show Extension Info**
 - **AlgoLens: Show Workspace Context**
 - **AlgoLens: Show Dashboard**
+- **AlgoLens: Explain Code with AI**
+
+### AI Code Explanation
+
+Use **AlgoLens: Explain Code with AI** from the Command Palette to explain the selected code, or the entire active file when no text is selected. The explanation opens as a Markdown report.
+
+Supported providers are OpenAI, Claude, Gemini, DeepSeek, and Qwen. Configure the provider and optional model in VS Code Settings under `algolens.ai.provider` and `algolens.ai.model`. When an API key is not already saved, the extension prompts for one and stores it using VS Code SecretStorage.
+
+Before sending code to an AI provider, the extension asks for confirmation that the code will be shared remotely. Review the selected code and provider before proceeding. API keys and source code should be treated as sensitive.
+
+The operation supports cancellation. Provider/configuration failures and empty explanations are reported without displaying an explanation as if it succeeded.
 
 ## Roadmap
 
@@ -128,3 +139,5 @@ AlgoLens is actively under development.
 
 Features and APIs may change as the project evolves. Feedback, bug reports, and contributions are welcome.
 ```
+
+To show the source-sharing confirmation again, open the Command Palette and run **AlgoLens: Reset Source Disclosure Consent**. Confirm the reset when prompted; this clears only the consent choice for the current workspace.
